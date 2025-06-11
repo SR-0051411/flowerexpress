@@ -6,9 +6,12 @@ import Cart from "@/components/Cart";
 import SearchBar from "@/components/SearchBar";
 import OwnerLogin from "@/components/OwnerLogin";
 import AdminPanel from "@/components/AdminPanel";
+import CheckoutForm from "@/components/CheckoutForm";
+import OrderManagement from "@/components/OrderManagement";
 import { toast } from "@/hooks/use-toast";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { PaymentProvider } from "@/contexts/PaymentContext";
 
 interface CartItem {
   id: string;
@@ -38,6 +41,8 @@ const IndexContent = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOwnerLoginOpen, setIsOwnerLoginOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -217,16 +222,17 @@ const IndexContent = () => {
 
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
-    
-    toast({
-      title: t('orderPlaced'),
-      description: t('orderPlacedDesc'),
-    });
-    setCartItems([]);
     setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleOrderSuccess = () => {
+    setCartItems([]);
+    setIsCheckoutOpen(false);
   };
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50">
@@ -235,6 +241,7 @@ const IndexContent = () => {
         onCartClick={() => setIsCartOpen(true)}
         onOwnerLoginClick={() => setIsOwnerLoginOpen(true)}
         onAdminPanelClick={() => setIsAdminPanelOpen(true)}
+        onOrderManagementClick={() => setIsOrderManagementOpen(true)}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -319,6 +326,14 @@ const IndexContent = () => {
         onCheckout={handleCheckout}
       />
 
+      <CheckoutForm
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        items={cartItems}
+        total={cartTotal}
+        onOrderSuccess={handleOrderSuccess}
+      />
+
       <OwnerLogin
         isOpen={isOwnerLoginOpen}
         onClose={() => setIsOwnerLoginOpen(false)}
@@ -332,6 +347,11 @@ const IndexContent = () => {
         onAddFlower={addFlower}
         onDeleteFlower={deleteFlower}
       />
+
+      <OrderManagement
+        isOpen={isOrderManagementOpen}
+        onClose={() => setIsOrderManagementOpen(false)}
+      />
     </div>
   );
 };
@@ -340,7 +360,9 @@ const Index = () => {
   return (
     <AuthProvider>
       <LanguageProvider>
-        <IndexContent />
+        <PaymentProvider>
+          <IndexContent />
+        </PaymentProvider>
       </LanguageProvider>
     </AuthProvider>
   );
