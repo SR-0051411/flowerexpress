@@ -1,16 +1,20 @@
 
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   cartCount: number;
   onCartClick: () => void;
+  onOwnerLoginClick: () => void;
+  onAdminPanelClick: () => void;
 }
 
-const Header = ({ cartCount, onCartClick }: HeaderProps) => {
+const Header = ({ cartCount, onCartClick, onOwnerLoginClick, onAdminPanelClick }: HeaderProps) => {
   const { t } = useLanguage();
+  const { isOwner } = useAuth();
 
   return (
     <header className="bg-white shadow-sm border-b border-pink-100 sticky top-0 z-50">
@@ -28,6 +32,25 @@ const Header = ({ cartCount, onCartClick }: HeaderProps) => {
           
           <div className="flex items-center space-x-4">
             <LanguageSwitcher />
+            
+            {isOwner ? (
+              <Button 
+                onClick={onAdminPanelClick}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Manage Products
+              </Button>
+            ) : (
+              <Button 
+                onClick={onOwnerLoginClick}
+                variant="outline"
+                className="border-pink-500 text-pink-500 hover:bg-pink-50 px-4 py-2"
+              >
+                Owner Login
+              </Button>
+            )}
+            
             <Button 
               onClick={onCartClick}
               className="relative bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 text-lg"

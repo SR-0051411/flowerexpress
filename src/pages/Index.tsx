@@ -1,12 +1,14 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import CategoryCard from "@/components/CategoryCard";
 import FlowerCard from "@/components/FlowerCard";
 import Cart from "@/components/Cart";
 import SearchBar from "@/components/SearchBar";
+import OwnerLogin from "@/components/OwnerLogin";
+import AdminPanel from "@/components/AdminPanel";
 import { toast } from "@/hooks/use-toast";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 interface CartItem {
   id: string;
@@ -23,24 +25,29 @@ interface Flower {
   image: string;
   descKey: string;
   category: string;
+  available?: boolean;
 }
 
 const IndexContent = () => {
   const { t } = useLanguage();
+  const { isOwner } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isOwnerLoginOpen, setIsOwnerLoginOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  // Sample flower data with translation keys
-  const flowers: Flower[] = [
+  // Sample flower data with availability
+  const [flowers, setFlowers] = useState<Flower[]>([
     {
       id: "1",
       nameKey: "redRoses",
       price: 299,
       image: "🌹",
       descKey: "redRosesDesc",
-      category: "roses"
+      category: "roses",
+      available: true
     },
     {
       id: "2",
@@ -48,7 +55,8 @@ const IndexContent = () => {
       price: 199,
       image: "🌻",
       descKey: "sunflowersDesc",
-      category: "sunflowers"
+      category: "sunflowers",
+      available: true
     },
     {
       id: "3",
@@ -56,7 +64,8 @@ const IndexContent = () => {
       price: 249,
       image: "🌺",
       descKey: "whiteLiliesDesc",
-      category: "lilies"
+      category: "lilies",
+      available: true
     },
     {
       id: "4",
@@ -64,7 +73,8 @@ const IndexContent = () => {
       price: 279,
       image: "🌷",
       descKey: "pinkTulipsDesc",
-      category: "tulips"
+      category: "tulips",
+      available: true
     },
     {
       id: "5",
@@ -72,7 +82,8 @@ const IndexContent = () => {
       price: 149,
       image: "🌼",
       descKey: "yellowMarigoldsDesc",
-      category: "marigolds"
+      category: "marigolds",
+      available: true
     },
     {
       id: "6",
@@ -80,9 +91,10 @@ const IndexContent = () => {
       price: 399,
       image: "🌸",
       descKey: "purpleOrchidsDesc",
-      category: "orchids"
+      category: "orchids",
+      available: true
     }
-  ];
+  ]);
 
   const categories = [
     { id: "all", titleKey: "allFlowers", image: "🌺" },
@@ -98,8 +110,15 @@ const IndexContent = () => {
     const flowerName = t(flower.nameKey);
     const matchesSearch = flowerName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || flower.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const isAvailable = flower.available !== false;
+    return matchesSearch && matchesCategory && isAvailable;
   });
+
+  const updateFlower = (id: string, updates: Partial<Flower>) => {
+    setFlowers(prev => prev.map(flower => 
+      flower.id === id ? { ...flower, ...updates } : flower
+    ));
+  };
 
   const addToCart = (flowerId: string) => {
     const flower = flowers.find(f => f.id === flowerId);
@@ -162,7 +181,12 @@ const IndexContent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50">
-      <Header cartCount={cartCount} onCartClick={() => setIsCartOpen(true)} />
+      <Header 
+        cartCount={cartCount} 
+        onCartClick={() => setIsCartOpen(true)}
+        onOwnerLoginClick={() => setIsOwnerLoginOpen(true)}
+        onAdminPanelClick={() => setIsAdminPanelOpen(true)}
+      />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
@@ -245,15 +269,29 @@ const IndexContent = () => {
         onRemoveItem={removeFromCart}
         onCheckout={handleCheckout}
       />
+
+      <OwnerLogin
+        isOpen={isOwnerLoginOpen}
+        onClose={() => setIsOwnerLoginOpen(false)}
+      />
+
+      <AdminPanel
+        isOpen={isAdminPanelOpen}
+        onClose={() => setIsAdminPanelOpen(false)}
+        flowers={flowers}
+        onUpdateFlower={updateFlower}
+      />
     </div>
   );
 };
 
 const Index = () => {
   return (
-    <LanguageProvider>
-      <IndexContent />
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <IndexContent />
+      </LanguageProvider>
+    </AuthProvider>
   );
 };
 
