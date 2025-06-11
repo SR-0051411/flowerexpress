@@ -2,6 +2,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CartItem {
   id: string;
@@ -21,19 +22,20 @@ interface CartProps {
 }
 
 const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, onCheckout }: CartProps) => {
+  const { t } = useLanguage();
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800">Your Cart</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-gray-800">{t('yourCart')}</DialogTitle>
         </DialogHeader>
         
         {items.length === 0 ? (
           <div className="text-center py-8">
             <span className="text-6xl mb-4 block">🛒</span>
-            <p className="text-gray-500 text-lg">Your cart is empty</p>
+            <p className="text-gray-500 text-lg">{t('cartEmpty')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -76,14 +78,14 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, onChecko
             
             <div className="border-t pt-4">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-xl font-bold">Total:</span>
+                <span className="text-xl font-bold">{t('total')}</span>
                 <span className="text-2xl font-bold text-pink-600">₹{total}</span>
               </div>
               <Button 
                 onClick={onCheckout}
                 className="w-full bg-pink-500 hover:bg-pink-600 text-white text-lg py-3"
               >
-                Order Now
+                {t('orderNow')}
               </Button>
             </div>
           </div>

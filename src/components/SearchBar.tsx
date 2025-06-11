@@ -1,6 +1,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SearchBarProps {
   searchTerm: string;
@@ -8,12 +9,14 @@ interface SearchBarProps {
 }
 
 const SearchBar = ({ searchTerm, onSearchChange }: SearchBarProps) => {
+  const { t } = useLanguage();
+
   return (
     <div className="relative max-w-md mx-auto mb-8">
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
       <Input
         type="text"
-        placeholder="Search flowers..."
+        placeholder={t('searchPlaceholder')}
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         className="pl-10 py-3 text-lg border-2 border-pink-200 focus:border-pink-400 rounded-xl"

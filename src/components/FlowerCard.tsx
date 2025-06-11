@@ -2,6 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FlowerCardProps {
   id: string;
@@ -13,6 +14,8 @@ interface FlowerCardProps {
 }
 
 const FlowerCard = ({ id, name, price, image, description, onAddToCart }: FlowerCardProps) => {
+  const { t } = useLanguage();
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border-2 border-pink-100">
       <div className="aspect-square bg-gradient-to-br from-pink-50 to-rose-50 flex items-center justify-center">
@@ -28,7 +31,7 @@ const FlowerCard = ({ id, name, price, image, description, onAddToCart }: Flower
             className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2"
           >
             <Plus className="w-4 h-4 mr-1" />
-            Add
+            {t('add')}
           </Button>
         </div>
       </div>
