@@ -26,6 +26,9 @@ interface Flower {
   descKey: string;
   category: string;
   available?: boolean;
+  isCustom?: boolean;
+  customName?: string;
+  customDesc?: string;
 }
 
 const IndexContent = () => {
@@ -38,7 +41,7 @@ const IndexContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  // Sample flower data with availability
+  // Enhanced flower data with new categories and custom products support
   const [flowers, setFlowers] = useState<Flower[]>([
     {
       id: "1",
@@ -46,7 +49,7 @@ const IndexContent = () => {
       price: 299,
       image: "🌹",
       descKey: "redRosesDesc",
-      category: "roses",
+      category: "flowers",
       available: true
     },
     {
@@ -55,7 +58,7 @@ const IndexContent = () => {
       price: 199,
       image: "🌻",
       descKey: "sunflowersDesc",
-      category: "sunflowers",
+      category: "flowers",
       available: true
     },
     {
@@ -64,7 +67,7 @@ const IndexContent = () => {
       price: 249,
       image: "🌺",
       descKey: "whiteLiliesDesc",
-      category: "lilies",
+      category: "flowers",
       available: true
     },
     {
@@ -73,7 +76,7 @@ const IndexContent = () => {
       price: 279,
       image: "🌷",
       descKey: "pinkTulipsDesc",
-      category: "tulips",
+      category: "flowers",
       available: true
     },
     {
@@ -82,7 +85,7 @@ const IndexContent = () => {
       price: 149,
       image: "🌼",
       descKey: "yellowMarigoldsDesc",
-      category: "marigolds",
+      category: "flowers",
       available: true
     },
     {
@@ -91,23 +94,60 @@ const IndexContent = () => {
       price: 399,
       image: "🌸",
       descKey: "purpleOrchidsDesc",
-      category: "orchids",
+      category: "flowers",
       available: true
+    },
+    // Sample products for new categories
+    {
+      id: "7",
+      nameKey: "",
+      customName: "Rose Garland",
+      price: 150,
+      image: "🌹",
+      descKey: "",
+      customDesc: "Beautiful fresh rose garland for special occasions",
+      category: "maala",
+      available: true,
+      isCustom: true
+    },
+    {
+      id: "8",
+      nameKey: "",
+      customName: "Fresh Coconut",
+      price: 45,
+      image: "🥥",
+      descKey: "",
+      customDesc: "Fresh coconut for pooja and cooking",
+      category: "coconut",
+      available: true,
+      isCustom: true
+    },
+    {
+      id: "9",
+      nameKey: "",
+      customName: "Sesame Oil",
+      price: 85,
+      image: "🛢️",
+      descKey: "",
+      customDesc: "Pure sesame oil for pooja and cooking",
+      category: "oils",
+      available: true,
+      isCustom: true
     }
   ]);
 
   const categories = [
     { id: "all", titleKey: "allFlowers", image: "🌺" },
-    { id: "roses", titleKey: "roses", image: "🌹" },
-    { id: "sunflowers", titleKey: "sunflowers", image: "🌻" },
-    { id: "lilies", titleKey: "lilies", image: "🌺" },
-    { id: "tulips", titleKey: "tulips", image: "🌷" },
-    { id: "marigolds", titleKey: "marigolds", image: "🌼" },
-    { id: "orchids", titleKey: "orchids", image: "🌸" }
+    { id: "flowers", titleKey: "flowers", image: "🌹" },
+    { id: "maala", titleKey: "maala", image: "🌿" },
+    { id: "pooja", titleKey: "pooja", image: "🕉️" },
+    { id: "oils", titleKey: "oils", image: "🛢️" },
+    { id: "coconut", titleKey: "coconut", image: "🥥" },
+    { id: "other", titleKey: "other", image: "📦" }
   ];
 
   const filteredFlowers = flowers.filter(flower => {
-    const flowerName = t(flower.nameKey);
+    const flowerName = flower.isCustom ? flower.customName || '' : t(flower.nameKey);
     const matchesSearch = flowerName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || flower.category === selectedCategory;
     const isAvailable = flower.available !== false;
@@ -120,11 +160,20 @@ const IndexContent = () => {
     ));
   };
 
+  const addFlower = (newFlower: Omit<Flower, 'id'>) => {
+    const id = Date.now().toString(); // Simple ID generation
+    setFlowers(prev => [...prev, { ...newFlower, id }]);
+  };
+
+  const deleteFlower = (id: string) => {
+    setFlowers(prev => prev.filter(flower => flower.id !== id));
+  };
+
   const addToCart = (flowerId: string) => {
     const flower = flowers.find(f => f.id === flowerId);
     if (!flower) return;
 
-    const flowerName = t(flower.nameKey);
+    const flowerName = flower.isCustom ? flower.customName || 'Unknown Product' : t(flower.nameKey);
 
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === flowerId);
@@ -198,7 +247,7 @@ const IndexContent = () => {
           <p className="text-xl text-gray-600 mb-8">
             {t('heroSubtitle')}
           </p>
-          <div className="text-6xl mb-8">🌸🌹🌺🌻🌷</div>
+          <div className="text-6xl mb-8">🌸🌹🌺🌻🌷🥥🕉️</div>
         </div>
 
         <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
@@ -218,7 +267,7 @@ const IndexContent = () => {
           </div>
         </div>
 
-        {/* Flowers Grid */}
+        {/* Products Grid */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
             {selectedCategory === "all" ? t('allFlowers') : t(categories.find(c => c.id === selectedCategory)?.titleKey || 'allFlowers')}
@@ -228,10 +277,10 @@ const IndexContent = () => {
               <FlowerCard
                 key={flower.id}
                 id={flower.id}
-                name={t(flower.nameKey)}
+                name={flower.isCustom ? flower.customName || 'Unknown Product' : t(flower.nameKey)}
                 price={flower.price}
                 image={flower.image}
-                description={t(flower.descKey)}
+                description={flower.isCustom ? flower.customDesc || '' : t(flower.descKey)}
                 onAddToCart={addToCart}
               />
             ))}
@@ -280,6 +329,8 @@ const IndexContent = () => {
         onClose={() => setIsAdminPanelOpen(false)}
         flowers={flowers}
         onUpdateFlower={updateFlower}
+        onAddFlower={addFlower}
+        onDeleteFlower={deleteFlower}
       />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 
 type Language = 'en' | 'ta';
@@ -71,7 +70,14 @@ const translations = {
     addedToCart: 'Added to cart!',
     addedToCartDesc: 'has been added to your cart.',
     orderPlaced: 'Order placed!',
-    orderPlacedDesc: 'Your flowers will be delivered within 30 minutes.'
+    orderPlacedDesc: 'Your flowers will be delivered within 30 minutes.',
+    
+    // Maala
+    maala: "Flower Maala",
+    pooja: "Pooja Items", 
+    oils: "Oils",
+    coconut: "Coconut Products",
+    other: "Other Items",
   },
   ta: {
     // Header
@@ -132,7 +138,14 @@ const translations = {
     addedToCart: 'கார்ட்டில் சேர்க்கப்பட்டது!',
     addedToCartDesc: 'உங்கள் கார்ட்டில் சேர்க்கப்பட்டது.',
     orderPlaced: 'ஆர்டர் செய்யப்பட்டது!',
-    orderPlacedDesc: 'உங்கள் பூக்கள் 30 நிமிடங்களில் டெலிவரி செய்யப்படும்.'
+    orderPlacedDesc: 'உங்கள் பூக்கள் 30 நிமிடங்களில் டெலிவரி செய்யப்படும்.',
+    
+    // Maala
+    maala: "பூ மாலை",
+    pooja: "பூஜை பொருட்கள்",
+    oils: "எண்ணெய்கள்",
+    coconut: "தேங்காய் பொருட்கள்",
+    other: "மற்ற பொருட்கள்",
   }
 };
 
@@ -157,3 +170,5 @@ export const useLanguage = () => {
   }
   return context;
 };
+
+export default LanguageProvider;
