@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -10,6 +9,8 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  tiedLength?: number;
+  ballQuantity?: number;
 }
 
 interface CartProps {
@@ -40,11 +41,23 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, onChecko
         ) : (
           <div className="space-y-4">
             {items.map((item) => (
-              <div key={item.id} className="flex items-center space-x-3 bg-pink-50 p-3 rounded-lg">
+              <div key={item.id} className="flex items-start space-x-3 bg-pink-50 p-3 rounded-lg">
                 <span className="text-3xl">{item.image}</span>
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-800">{item.name}</h4>
                   <p className="text-pink-600 font-bold">₹{item.price}</p>
+                  
+                  {/* Display flower specifications */}
+                  {(item.tiedLength || item.ballQuantity) && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      {item.ballQuantity && (
+                        <div>🌸 {item.ballQuantity} ball{item.ballQuantity > 1 ? 's' : ''}</div>
+                      )}
+                      {item.tiedLength && (
+                        <div>📏 {item.tiedLength}ft length</div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button

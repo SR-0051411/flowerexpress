@@ -25,6 +25,8 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  tiedLength?: number; // Length in feet for tied flowers
+  ballQuantity?: number; // Number of flower balls
 }
 
 interface PaymentContextType {

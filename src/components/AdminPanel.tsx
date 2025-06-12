@@ -22,6 +22,8 @@ interface Flower {
   isCustom?: boolean;
   customName?: string;
   customDesc?: string;
+  tiedLength?: number;
+  ballQuantity?: number;
 }
 
 interface AdminPanelProps {
@@ -46,7 +48,9 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
     customDesc: '',
     category: 'flowers',
     available: true,
-    isCustom: true
+    isCustom: true,
+    tiedLength: 0,
+    ballQuantity: 0
   });
 
   const categories = [
@@ -87,7 +91,9 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
       customDesc: newProduct.customDesc,
       category: newProduct.category,
       available: newProduct.available,
-      isCustom: true
+      isCustom: true,
+      tiedLength: newProduct.tiedLength > 0 ? newProduct.tiedLength : undefined,
+      ballQuantity: newProduct.ballQuantity > 0 ? newProduct.ballQuantity : undefined
     });
 
     setNewProduct({
@@ -99,7 +105,9 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
       customDesc: '',
       category: 'flowers',
       available: true,
-      isCustom: true
+      isCustom: true,
+      tiedLength: 0,
+      ballQuantity: 0
     });
     setShowAddForm(false);
     
@@ -216,6 +224,29 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     className="mt-1"
                   />
                 </div>
+                <div>
+                  <Label htmlFor="new-tied-length">Tied Length (ft)</Label>
+                  <Input
+                    id="new-tied-length"
+                    type="number"
+                    step="0.5"
+                    value={newProduct.tiedLength}
+                    onChange={(e) => setNewProduct(prev => ({...prev, tiedLength: parseFloat(e.target.value) || 0}))}
+                    placeholder="e.g., 4"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-ball-quantity">Flower Balls</Label>
+                  <Input
+                    id="new-ball-quantity"
+                    type="number"
+                    value={newProduct.ballQuantity}
+                    onChange={(e) => setNewProduct(prev => ({...prev, ballQuantity: parseInt(e.target.value) || 0}))}
+                    placeholder="e.g., 1"
+                    className="mt-1"
+                  />
+                </div>
                 <div className="md:col-span-2">
                   <Label htmlFor="new-desc">Description</Label>
                   <Textarea
@@ -255,6 +286,12 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold">{getProductName(flower)}</h3>
                     <p className="text-sm text-gray-600">{flower.category}</p>
+                    {(flower.tiedLength || flower.ballQuantity) && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {flower.ballQuantity && <span>🌸 {flower.ballQuantity} ball{flower.ballQuantity > 1 ? 's' : ''} </span>}
+                        {flower.tiedLength && <span>📏 {flower.tiedLength}ft</span>}
+                      </div>
+                    )}
                     {flower.isCustom && (
                       <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                         Custom Product
@@ -283,7 +320,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                   )}
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <Label htmlFor={`price-${flower.id}`}>Price (₹)</Label>
                     <Input
@@ -314,6 +351,36 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       </SelectContent>
                     </Select>
                   </div>
+                  <div>
+                    <Label htmlFor={`tied-length-${flower.id}`}>Tied Length (ft)</Label>
+                    <Input
+                      id={`tied-length-${flower.id}`}
+                      type="number"
+                      step="0.5"
+                      value={flower.tiedLength || ''}
+                      onChange={(e) => 
+                        handleUpdateFlower(flower.id, 'tiedLength', parseFloat(e.target.value) || undefined)
+                      }
+                      className="mt-1"
+                      placeholder="e.g., 4"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`ball-quantity-${flower.id}`}>Flower Balls</Label>
+                    <Input
+                      id={`ball-quantity-${flower.id}`}
+                      type="number"
+                      value={flower.ballQuantity || ''}
+                      onChange={(e) => 
+                        handleUpdateFlower(flower.id, 'ballQuantity', parseInt(e.target.value) || undefined)
+                      }
+                      className="mt-1"
+                      placeholder="e.g., 1"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   {flower.isCustom && (
                     <div>
                       <Label htmlFor={`name-${flower.id}`}>Product Name</Label>
@@ -327,21 +394,21 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       />
                     </div>
                   )}
+                  
+                  {flower.isCustom && (
+                    <div className={flower.isCustom ? "md:col-span-1" : "md:col-span-2"}>
+                      <Label htmlFor={`desc-${flower.id}`}>Description</Label>
+                      <Textarea
+                        id={`desc-${flower.id}`}
+                        value={flower.customDesc || ''}
+                        onChange={(e) => 
+                          handleUpdateFlower(flower.id, 'customDesc', e.target.value)
+                        }
+                        className="mt-1"
+                      />
+                    </div>
+                  )}
                 </div>
-                
-                {flower.isCustom && (
-                  <div className="mt-4">
-                    <Label htmlFor={`desc-${flower.id}`}>Description</Label>
-                    <Textarea
-                      id={`desc-${flower.id}`}
-                      value={flower.customDesc || ''}
-                      onChange={(e) => 
-                        handleUpdateFlower(flower.id, 'customDesc', e.target.value)
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                )}
               </div>
             ))}
           </div>

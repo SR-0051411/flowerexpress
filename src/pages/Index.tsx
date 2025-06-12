@@ -19,6 +19,8 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  tiedLength?: number; // Length in feet for tied flowers
+  ballQuantity?: number; // Number of flower balls
 }
 
 interface Flower {
@@ -32,6 +34,8 @@ interface Flower {
   isCustom?: boolean;
   customName?: string;
   customDesc?: string;
+  tiedLength?: number; // Default tied length in feet
+  ballQuantity?: number; // Default number of flower balls per order
 }
 
 const IndexContent = () => {
@@ -55,7 +59,9 @@ const IndexContent = () => {
       image: "🌹",
       descKey: "redRosesDesc",
       category: "flowers",
-      available: true
+      available: true,
+      tiedLength: 4,
+      ballQuantity: 1
     },
     {
       id: "2",
@@ -64,7 +70,9 @@ const IndexContent = () => {
       image: "🌻",
       descKey: "sunflowersDesc",
       category: "flowers",
-      available: true
+      available: true,
+      tiedLength: 3.5,
+      ballQuantity: 1
     },
     {
       id: "3",
@@ -73,7 +81,9 @@ const IndexContent = () => {
       image: "🌺",
       descKey: "whiteLiliesDesc",
       category: "flowers",
-      available: true
+      available: true,
+      tiedLength: 4,
+      ballQuantity: 1
     },
     {
       id: "4",
@@ -82,7 +92,9 @@ const IndexContent = () => {
       image: "🌷",
       descKey: "pinkTulipsDesc",
       category: "flowers",
-      available: true
+      available: true,
+      tiedLength: 3,
+      ballQuantity: 1
     },
     {
       id: "5",
@@ -91,7 +103,9 @@ const IndexContent = () => {
       image: "🌼",
       descKey: "yellowMarigoldsDesc",
       category: "flowers",
-      available: true
+      available: true,
+      tiedLength: 5,
+      ballQuantity: 2
     },
     {
       id: "6",
@@ -100,7 +114,9 @@ const IndexContent = () => {
       image: "🌸",
       descKey: "purpleOrchidsDesc",
       category: "flowers",
-      available: true
+      available: true,
+      tiedLength: 4.5,
+      ballQuantity: 1
     },
     // Sample products for new categories
     {
@@ -113,7 +129,9 @@ const IndexContent = () => {
       customDesc: "Beautiful fresh rose garland for special occasions",
       category: "maala",
       available: true,
-      isCustom: true
+      isCustom: true,
+      tiedLength: 6,
+      ballQuantity: 3
     },
     {
       id: "8",
@@ -194,7 +212,9 @@ const IndexContent = () => {
         name: flowerName,
         price: flower.price,
         quantity: 1,
-        image: flower.image
+        image: flower.image,
+        tiedLength: flower.tiedLength,
+        ballQuantity: flower.ballQuantity
       }];
     });
 
@@ -289,6 +309,8 @@ const IndexContent = () => {
                 image={flower.image}
                 description={flower.isCustom ? flower.customDesc || '' : t(flower.descKey)}
                 onAddToCart={addToCart}
+                tiedLength={flower.tiedLength}
+                ballQuantity={flower.ballQuantity}
               />
             ))}
           </div>

@@ -11,9 +11,11 @@ interface FlowerCardProps {
   image: string;
   description: string;
   onAddToCart: (id: string) => void;
+  tiedLength?: number;
+  ballQuantity?: number;
 }
 
-const FlowerCard = ({ id, name, price, image, description, onAddToCart }: FlowerCardProps) => {
+const FlowerCard = ({ id, name, price, image, description, onAddToCart, tiedLength, ballQuantity }: FlowerCardProps) => {
   const { t } = useLanguage();
 
   return (
@@ -23,7 +25,24 @@ const FlowerCard = ({ id, name, price, image, description, onAddToCart }: Flower
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-1">{name}</h3>
-        <p className="text-sm text-gray-600 mb-3 h-10 overflow-hidden">{description}</p>
+        <p className="text-sm text-gray-600 mb-2 h-8 overflow-hidden">{description}</p>
+        
+        {/* Flower specifications */}
+        {(tiedLength || ballQuantity) && (
+          <div className="mb-3 p-2 bg-pink-50 rounded-md text-xs">
+            {ballQuantity && (
+              <div className="text-pink-700">
+                🌸 {ballQuantity} flower ball{ballQuantity > 1 ? 's' : ''}
+              </div>
+            )}
+            {tiedLength && (
+              <div className="text-pink-700">
+                📏 {tiedLength}ft tied length
+              </div>
+            )}
+          </div>
+        )}
+        
         <div className="flex justify-between items-center">
           <span className="text-2xl font-bold text-pink-600">₹{price}</span>
           <Button 
