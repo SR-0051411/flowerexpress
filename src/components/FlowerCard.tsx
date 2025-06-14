@@ -35,7 +35,7 @@ const getTiedLengthSpec = (len: number | undefined) => {
   return (
     <div>
       <div className="text-pink-700 text-lg font-bold leading-tight">
-        📏 {len} மோலம்
+        📏 {len} முழம்
       </div>
       <div className="text-xs text-pink-700">
         {len}ft tied length
@@ -56,7 +56,6 @@ const FlowerCard = ({
   tiedLength,
   ballQuantity,
 }: FlowerCardProps) => {
-
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border-2 border-pink-100">
       <div className="aspect-square bg-gradient-to-br from-pink-50 to-rose-50 flex items-center justify-center">

@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -53,7 +54,7 @@ const Cart = ({
     return (
       <div>
         <div className="text-pink-700 text-base font-bold leading-tight">
-          📏 {len} மோலம்
+          📏 {len} முழம்
         </div>
         <div className="text-xs text-pink-700">
           {len}ft tied length
