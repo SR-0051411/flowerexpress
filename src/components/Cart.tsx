@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -12,6 +11,7 @@ interface CartItem {
   image: string;
   tiedLength?: number;
   ballQuantity?: number;
+  imageFileUrl?: string;
 }
 
 interface CartProps {
@@ -85,7 +85,11 @@ const Cart = ({
                 key={item.id}
                 className="flex items-start space-x-3 bg-pink-50 p-3 rounded-lg"
               >
-                <span className="text-3xl">{item.image}</span>
+                {item.imageFileUrl ? (
+                  <img src={item.imageFileUrl} alt={item.name} className="w-10 h-10 rounded object-cover border" />
+                ) : (
+                  <span className="text-3xl">{item.image}</span>
+                )}
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-800">
                     {item.name}
@@ -159,4 +163,3 @@ const Cart = ({
 };
 
 export default Cart;
-

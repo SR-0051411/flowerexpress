@@ -14,6 +14,7 @@ interface FlowerCardProps {
   onAddToCart: (id: string) => void;
   tiedLength?: number;
   ballQuantity?: number;
+  imageFileUrl?: string;
 }
 
 const getBallSpec = (qty: number | undefined) => {
@@ -55,11 +56,16 @@ const FlowerCard = ({
   onAddToCart,
   tiedLength,
   ballQuantity,
+  imageFileUrl,
 }: FlowerCardProps) => {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border-2 border-pink-100">
       <div className="aspect-square bg-gradient-to-br from-pink-50 to-rose-50 flex items-center justify-center">
-        <span className="text-6xl">{image}</span>
+        {imageFileUrl ? (
+          <img src={imageFileUrl} alt={nameTa} className="object-contain w-24 h-24 rounded" />
+        ) : (
+          <span className="text-6xl">{image}</span>
+        )}
       </div>
       <div className="p-4">
         <div className="mb-1 flex flex-col gap-0.5">
@@ -98,4 +104,3 @@ const FlowerCard = ({
 };
 
 export default FlowerCard;
-

@@ -24,6 +24,8 @@ interface Flower {
   customDesc?: string;
   tiedLength?: number;
   ballQuantity?: number;
+  imageFile?: File | null;
+  imageFileUrl?: string;
 }
 
 interface AdminPanelProps {
@@ -50,7 +52,9 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
     available: true,
     isCustom: true,
     tiedLength: 0,
-    ballQuantity: 0
+    ballQuantity: 0,
+    imageFile: null as File | null,
+    imageFileUrl: ''
   });
 
   const categories = [
@@ -72,8 +76,29 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
     });
   };
 
+  const handleNewImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setNewProduct(prev => ({
+        ...prev,
+        imageFile: file,
+        imageFileUrl: imageUrl
+      }));
+    }
+  };
+
+  const handleFlowerImageChange = (flower: Flower, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      // Save the image file URL to the flower object in memory
+      onUpdateFlower(flower.id, { imageFileUrl: imageUrl });
+    }
+  };
+
   const handleAddProduct = () => {
-    if (!newProduct.customName || !newProduct.image || newProduct.price <= 0) {
+    if (!newProduct.customName || (!newProduct.image && !newProduct.imageFileUrl) || newProduct.price <= 0) {
       toast({
         title: "Validation Error",
         description: "Please fill all required fields",
@@ -87,6 +112,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
       customName: newProduct.customName,
       price: newProduct.price,
       image: newProduct.image,
+      imageFileUrl: newProduct.imageFileUrl,
       descKey: newProduct.descKey,
       customDesc: newProduct.customDesc,
       category: newProduct.category,
@@ -95,6 +121,11 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
       tiedLength: newProduct.tiedLength > 0 ? newProduct.tiedLength : undefined,
       ballQuantity: newProduct.ballQuantity > 0 ? newProduct.ballQuantity : undefined
     });
+
+    // Clean up object URL after it's used to prevent memory leaks
+    if (newProduct.imageFileUrl) {
+      URL.revokeObjectURL(newProduct.imageFileUrl);
+    }
 
     setNewProduct({
       nameKey: '',
@@ -107,7 +138,9 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
       available: true,
       isCustom: true,
       tiedLength: 0,
-      ballQuantity: 0
+      ballQuantity: 0,
+      imageFile: null,
+      imageFileUrl: ''
     });
     setShowAddForm(false);
     
@@ -215,6 +248,24 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                   />
                 </div>
                 <div>
+                  <Label htmlFor="new-image-file">Product Image (optional, real photo)</Label>
+                  <Input
+                    id="new-image-file"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleNewImageFileChange}
+                    className="mt-1"
+                  />
+                  {newProduct.imageFileUrl && (
+                    <img
+                      src={newProduct.imageFileUrl}
+                      alt="Preview"
+                      className="w-20 h-20 rounded object-cover mt-2 border"
+                    />
+                  )}
+                  <span className="block text-xs text-gray-400 mt-1">You can use real images for product photos. If no image uploaded, emoji/icon will be shown.</span>
+                </div>
+                <div>
                   <Label htmlFor="new-image">Emoji/Icon *</Label>
                   <Input
                     id="new-image"
@@ -223,6 +274,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     placeholder="🥥 (Enter emoji or icon)"
                     className="mt-1"
                   />
+                  <span className="block text-xs text-gray-400 mt-1">If you don't upload an image, the icon/emoji will be used.</span>
                 </div>
                 <div>
                   <Label htmlFor="new-tied-length">Tied Length (ft)</Label>
@@ -282,7 +334,11 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
             {flowers.map((flower) => (
               <div key={flower.id} className="border rounded-lg p-4 bg-pink-50">
                 <div className="flex items-center space-x-4 mb-4">
-                  <span className="text-4xl">{flower.image}</span>
+                  {flower.imageFileUrl ? (
+                    <img src={flower.imageFileUrl} alt={flower.customName || flower.nameKey} className="w-12 h-12 rounded object-cover border" />
+                  ) : (
+                    <span className="text-4xl">{flower.image}</span>
+                  )}
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold">{getProductName(flower)}</h3>
                     <p className="text-sm text-gray-600">{flower.category}</p>
@@ -297,6 +353,15 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                         Custom Product
                       </span>
                     )}
+                  </div>
+                  <div>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFlowerImageChange(flower, e)}
+                      className="p-1 text-xs"
+                    />
+                    <span className="block text-xs text-gray-400">Change image</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Label htmlFor={`available-${flower.id}`}>Available</Label>

@@ -85,6 +85,7 @@ const ProductGrid = ({ flowers, searchTerm, selectedCategory, onAddToCart }: Pro
               : languageTranslation[flower.nameKey as keyof typeof languageTranslation]?.en || ''}
             price={flower.price}
             image={flower.image}
+            imageFileUrl={flower.imageFileUrl}
             // Description: use Tamil large, English small under
             descTa={flower.isCustom
               ? flower.customDesc || ''
