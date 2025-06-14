@@ -19,12 +19,12 @@ interface FlowerCardProps {
 const getBallSpec = (qty: number | undefined) => {
   if (!qty) return null;
   return (
-    <div className="mb-2">
-      <div className="text-pink-700 text-lg font-bold leading-tight">
-        🌸 {qty} பந்து
-      </div>
-      <div className="text-xs text-pink-700">
-        {qty} flower ball{qty > 1 ? "s" : ""}
+    <div className="mb-2 flex items-center gap-2">
+      <div className="text-pink-700 text-lg font-bold leading-tight flex items-center gap-2">
+        🌸
+        <span>
+          {qty} பந்து ({qty} ball{qty > 1 ? "s" : ""})
+        </span>
       </div>
     </div>
   );
@@ -33,12 +33,12 @@ const getBallSpec = (qty: number | undefined) => {
 const getTiedLengthSpec = (len: number | undefined) => {
   if (!len) return null;
   return (
-    <div>
-      <div className="text-pink-700 text-lg font-bold leading-tight">
-        📏 {len} முழம்
-      </div>
-      <div className="text-xs text-pink-700">
-        {len}ft tied length
+    <div className="flex items-center gap-2">
+      <div className="text-pink-700 text-lg font-bold leading-tight flex items-center gap-2">
+        📏
+        <span>
+          {len} முழம் ({len}ft tied length)
+        </span>
       </div>
     </div>
   );
@@ -62,13 +62,15 @@ const FlowerCard = ({
         <span className="text-6xl">{image}</span>
       </div>
       <div className="p-4">
-        <div className="mb-1">
-          <div className="text-xl font-bold text-pink-800">{nameTa}</div>
-          <div className="text-xs text-gray-700">{nameEn}</div>
+        <div className="mb-1 flex flex-col gap-0.5">
+          <div className="text-xl font-bold text-pink-800 flex items-center gap-2">
+            <span>{nameTa}</span>
+            <span className="text-pink-700">({nameEn})</span>
+          </div>
         </div>
-        <div className="mb-2 h-10">
+        <div className="mb-2 h-10 flex items-center gap-2">
           <div className="text-sm text-gray-800">{descTa}</div>
-          <div className="text-xs text-gray-500">{descEn}</div>
+          <div className="text-gray-500 text-sm">({descEn})</div>
         </div>
 
         {(tiedLength || ballQuantity) && (
@@ -86,8 +88,7 @@ const FlowerCard = ({
           >
             <Plus className="w-4 h-4 mr-1" />
             <span>
-              சேர்
-              <span className="block text-[10px] font-normal text-white opacity-80 leading-tight -mt-0.5">Add</span>
+              சேர் <span className="text-xs font-normal opacity-80">Add</span>
             </span>
           </Button>
         </div>
@@ -97,3 +98,4 @@ const FlowerCard = ({
 };
 
 export default FlowerCard;
+

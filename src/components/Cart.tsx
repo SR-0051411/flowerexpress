@@ -34,16 +34,17 @@ const Cart = ({
   const { t } = useLanguage();
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Always show both Tamil and English, Tamil big, English small (no toggle)
+  // Split item name for Tamil and English
+  // Assume name is like "சிவப்பு ரோஜாக்கள் (Red Roses)" if possible
   const getBallSpec = (qty: number | undefined) => {
     if (!qty) return null;
     return (
-      <div className="mb-1">
-        <div className="text-pink-700 text-base font-bold leading-tight">
-          🌸 {qty} பந்து
-        </div>
-        <div className="text-xs text-pink-700">
-          {qty} ball{qty > 1 ? "s" : ""}
+      <div className="mb-1 flex items-center gap-2">
+        <div className="text-pink-700 text-base font-bold leading-tight flex items-center gap-2">
+          🌸
+          <span>
+            {qty} பந்து ({qty} ball{qty > 1 ? "s" : ""})
+          </span>
         </div>
       </div>
     );
@@ -52,12 +53,12 @@ const Cart = ({
   const getTiedLengthSpec = (len: number | undefined) => {
     if (!len) return null;
     return (
-      <div>
-        <div className="text-pink-700 text-base font-bold leading-tight">
-          📏 {len} முழம்
-        </div>
-        <div className="text-xs text-pink-700">
-          {len}ft tied length
+      <div className="flex items-center gap-2">
+        <div className="text-pink-700 text-base font-bold leading-tight flex items-center gap-2">
+          📏
+          <span>
+            {len} முழம் ({len}ft tied length)
+          </span>
         </div>
       </div>
     );
@@ -86,7 +87,9 @@ const Cart = ({
               >
                 <span className="text-3xl">{item.image}</span>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-800">{item.name}</h4>
+                  <h4 className="font-semibold text-gray-800">
+                    {item.name}
+                  </h4>
                   <p className="text-pink-600 font-bold">
                     ₹{item.price}
                   </p>
@@ -156,3 +159,4 @@ const Cart = ({
 };
 
 export default Cart;
+
