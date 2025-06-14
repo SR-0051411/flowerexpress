@@ -1,7 +1,5 @@
-
 import { ShoppingCart, Settings, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -32,8 +30,6 @@ const Header = ({ cartCount, onCartClick, onOwnerLoginClick, onAdminPanelClick, 
           </div>
           
           <div className="flex items-center space-x-4">
-            <LanguageSwitcher />
-            
             {isOwner ? (
               <div className="flex space-x-2">
                 <Button 

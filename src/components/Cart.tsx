@@ -33,7 +33,7 @@ const Cart = ({
   const { t } = useLanguage();
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Always show both Tamil and English, Tamil big, English small
+  // Always show both Tamil and English, Tamil big, English small (no toggle)
   const getBallSpec = (qty: number | undefined) => {
     if (!qty) return null;
     return (
@@ -67,14 +67,14 @@ const Cart = ({
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-800">
-            {t("yourCart")}
+            Your Cart
           </DialogTitle>
         </DialogHeader>
 
         {items.length === 0 ? (
           <div className="text-center py-8">
             <span className="text-6xl mb-4 block">🛒</span>
-            <p className="text-gray-500 text-lg">{t("cartEmpty")}</p>
+            <p className="text-gray-500 text-lg">Your cart is empty</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -135,7 +135,7 @@ const Cart = ({
 
             <div className="border-t pt-4">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-xl font-bold">{t("total")}</span>
+                <span className="text-xl font-bold">Total:</span>
                 <span className="text-2xl font-bold text-pink-600">
                   ₹{total}
                 </span>
@@ -144,7 +144,7 @@ const Cart = ({
                 onClick={onCheckout}
                 className="w-full bg-pink-500 hover:bg-pink-600 text-white text-lg py-3"
               >
-                {t("orderNow")}
+                Order Now
               </Button>
             </div>
           </div>

@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -27,7 +26,9 @@ const FlowerCard = ({
 }: FlowerCardProps) => {
   const { t } = useLanguage();
 
-  // Always show both Tamil and English, Tamil big, English small
+  // Only show dual language for specs.
+  // Tamil large, English small.
+  
   const getBallSpec = (qty: number | undefined) => {
     if (!qty) return null;
     return (
@@ -81,7 +82,8 @@ const FlowerCard = ({
             className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2"
           >
             <Plus className="w-4 h-4 mr-1" />
-            {t("add")}
+            {/* Always in English for "Add" */}
+            Add
           </Button>
         </div>
       </div>
