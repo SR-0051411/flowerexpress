@@ -12,6 +12,7 @@ export interface Flower {
   customDesc?: string;
   tiedLength?: number;
   ballQuantity?: number;
+  imageFileUrl?: string; // Allow real images for flowers, optional
 }
 
 export const initialFlowers: Flower[] = [
