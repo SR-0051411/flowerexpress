@@ -16,7 +16,41 @@ interface FlowerCardProps {
 }
 
 const FlowerCard = ({ id, name, price, image, description, onAddToCart, tiedLength, ballQuantity }: FlowerCardProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  // Show Tamil if ta, else English as before
+  const getBallText = (qty: number | undefined) => {
+    if (!qty) return null;
+    if (language === "ta") {
+      return (
+        <div className="text-pink-700">
+          🌸 {qty} பந்து{qty > 1 ? '' : ''}
+        </div>
+      );
+    }
+    return (
+      <div className="text-pink-700">
+        🌸 {qty} flower ball{qty > 1 ? 's' : ''}
+      </div>
+    );
+  };
+
+  const getTiedLengthText = (len: number | undefined) => {
+    if (!len) return null;
+    if (language === "ta") {
+      // For Tamil: "4 மோலம்"
+      return (
+        <div className="text-pink-700">
+          📏 {len} மோலம்
+        </div>
+      );
+    }
+    return (
+      <div className="text-pink-700">
+        📏 {len}ft tied length
+      </div>
+    );
+  };
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border-2 border-pink-100">
@@ -30,16 +64,8 @@ const FlowerCard = ({ id, name, price, image, description, onAddToCart, tiedLeng
         {/* Flower specifications */}
         {(tiedLength || ballQuantity) && (
           <div className="mb-3 p-2 bg-pink-50 rounded-md text-xs">
-            {ballQuantity && (
-              <div className="text-pink-700">
-                🌸 {ballQuantity} flower ball{ballQuantity > 1 ? 's' : ''}
-              </div>
-            )}
-            {tiedLength && (
-              <div className="text-pink-700">
-                📏 {tiedLength}ft tied length
-              </div>
-            )}
+            {getBallText(ballQuantity)}
+            {getTiedLengthText(tiedLength)}
           </div>
         )}
         

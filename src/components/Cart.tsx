@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -23,8 +24,33 @@ interface CartProps {
 }
 
 const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, onCheckout }: CartProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  // Helpers for localized display
+  const getBallText = (qty: number | undefined) => {
+    if (!qty) return null;
+    if (language === "ta") {
+      return (
+        <div>🌸 {qty} பந்து</div>
+      );
+    }
+    return (
+      <div>🌸 {qty} ball{qty > 1 ? 's' : ''}</div>
+    );
+  };
+
+  const getTiedLengthText = (len: number | undefined) => {
+    if (!len) return null;
+    if (language === "ta") {
+      return (
+        <div>📏 {len} மோலம்</div>
+      );
+    }
+    return (
+      <div>📏 {len}ft length</div>
+    );
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -50,12 +76,8 @@ const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, onChecko
                   {/* Display flower specifications */}
                   {(item.tiedLength || item.ballQuantity) && (
                     <div className="text-xs text-gray-600 mt-1">
-                      {item.ballQuantity && (
-                        <div>🌸 {item.ballQuantity} ball{item.ballQuantity > 1 ? 's' : ''}</div>
-                      )}
-                      {item.tiedLength && (
-                        <div>📏 {item.tiedLength}ft length</div>
-                      )}
+                      {getBallText(item.ballQuantity)}
+                      {getTiedLengthText(item.tiedLength)}
                     </div>
                   )}
                 </div>
