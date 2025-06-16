@@ -11,9 +11,12 @@ import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ProductGrid from "@/components/ProductGrid";
 import FeaturesSection from "@/components/FeaturesSection";
+import EnquiryButton from "@/components/EnquiryButton";
+import EnquiryForm from "@/components/EnquiryForm";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
+import { EnquiryProvider } from "@/contexts/EnquiryContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
 import { initialFlowers, Flower } from "@/data/flowersData";
 
@@ -90,6 +93,10 @@ const IndexContent = () => {
         <FeaturesSection />
       </main>
 
+      {/* Enquiry System */}
+      <EnquiryButton />
+      <EnquiryForm />
+
       <Cart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -134,7 +141,9 @@ const Index = () => {
     <AuthProvider>
       <LanguageProvider>
         <PaymentProvider>
-          <IndexContent />
+          <EnquiryProvider>
+            <IndexContent />
+          </EnquiryProvider>
         </PaymentProvider>
       </LanguageProvider>
     </AuthProvider>
