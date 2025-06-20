@@ -1,10 +1,13 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
-  isOwner: boolean;
-  login: (password: string) => boolean;
-  logout: () => void;
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,35 +25,43 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isOwner, setIsOwner] = useState(false);
-
-  // Simple password authentication - in production, use proper authentication
-  const OWNER_PASSWORD = "flower123"; // Change this to your desired password
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if owner is already logged in
-    const ownerLoggedIn = localStorage.getItem('ownerLoggedIn');
-    if (ownerLoggedIn === 'true') {
-      setIsOwner(true);
-    }
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = (password: string): boolean => {
-    if (password === OWNER_PASSWORD) {
-      setIsOwner(true);
-      localStorage.setItem('ownerLoggedIn', 'true');
-      return true;
-    }
-    return false;
+  const signOut = async () => {
+    await supabase.auth.signOut();
   };
 
-  const logout = () => {
-    setIsOwner(false);
-    localStorage.removeItem('ownerLoggedIn');
+  const value = {
+    user,
+    session,
+    loading,
+    signOut,
   };
 
   return (
-    <AuthContext.Provider value={{ isOwner, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

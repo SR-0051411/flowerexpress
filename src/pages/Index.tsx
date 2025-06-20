@@ -3,7 +3,6 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Cart from "@/components/Cart";
 import SearchBar from "@/components/SearchBar";
-import OwnerLogin from "@/components/OwnerLogin";
 import AdminPanel from "@/components/AdminPanel";
 import CheckoutForm from "@/components/CheckoutForm";
 import OrderManagement from "@/components/OrderManagement";
@@ -21,10 +20,9 @@ import { useCartManagement } from "@/hooks/useCartManagement";
 import { initialFlowers, Flower } from "@/data/flowersData";
 
 const IndexContent = () => {
-  const { isOwner } = useAuth();
+  const { user, signOut } = useAuth();
   const [flowers, setFlowers] = useState<Flower[]>(initialFlowers);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isOwnerLoginOpen, setIsOwnerLoginOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
@@ -67,14 +65,19 @@ const IndexContent = () => {
     setIsCheckoutOpen(false);
   };
 
+  // Check if user is admin (you can customize this logic)
+  const isAdmin = user?.email === 'admin@flowerexpress.com';
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50">
       <Header 
         cartCount={cartCount} 
         onCartClick={() => setIsCartOpen(true)}
-        onOwnerLoginClick={() => setIsOwnerLoginOpen(true)}
         onAdminPanelClick={() => setIsAdminPanelOpen(true)}
         onOrderManagementClick={() => setIsOrderManagementOpen(true)}
+        onSignOut={signOut}
+        userEmail={user?.email}
+        isAdmin={isAdmin}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -114,24 +117,23 @@ const IndexContent = () => {
         onOrderSuccess={handleOrderSuccess}
       />
 
-      <OwnerLogin
-        isOpen={isOwnerLoginOpen}
-        onClose={() => setIsOwnerLoginOpen(false)}
-      />
+      {isAdmin && (
+        <>
+          <AdminPanel
+            isOpen={isAdminPanelOpen}
+            onClose={() => setIsAdminPanelOpen(false)}
+            flowers={flowers}
+            onUpdateFlower={updateFlower}
+            onAddFlower={addFlower}
+            onDeleteFlower={deleteFlower}
+          />
 
-      <AdminPanel
-        isOpen={isAdminPanelOpen}
-        onClose={() => setIsAdminPanelOpen(false)}
-        flowers={flowers}
-        onUpdateFlower={updateFlower}
-        onAddFlower={addFlower}
-        onDeleteFlower={deleteFlower}
-      />
-
-      <OrderManagement
-        isOpen={isOrderManagementOpen}
-        onClose={() => setIsOrderManagementOpen(false)}
-      />
+          <OrderManagement
+            isOpen={isOrderManagementOpen}
+            onClose={() => setIsOrderManagementOpen(false)}
+          />
+        </>
+      )}
     </div>
   );
 };
