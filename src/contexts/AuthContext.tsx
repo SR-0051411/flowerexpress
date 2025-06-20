@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +12,8 @@ interface AuthContextType {
   isOwner: boolean;
   login: (password: string) => boolean;
   logout: () => void;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ success: boolean; message: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,10 +39,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        if (event === 'SIGNED_IN' && session?.user) {
+          toast({
+            title: "Welcome to FlowerExpress! 🌸",
+            description: "You have successfully signed in.",
+          });
+        }
       }
     );
 
@@ -53,15 +63,66 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const signUp = async (email: string, password: string, fullName: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
+      });
+
+      if (error) {
+        return { success: false, message: error.message };
+      }
+
+      if (data.user && !data.user.email_confirmed_at) {
+        return { success: true, message: 'Please check your email to confirm your account.' };
+      }
+
+      return { success: true, message: 'Account created successfully!' };
+    } catch (error: any) {
+      return { success: false, message: error.message || 'An error occurred during sign up.' };
+    }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, message: error.message };
+      }
+
+      return { success: true, message: 'Successfully signed in!' };
+    } catch (error: any) {
+      return { success: false, message: error.message || 'An error occurred during sign in.' };
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setIsOwnerLoggedIn(false);
+    toast({
+      title: "Goodbye! 👋",
+      description: "You have been signed out successfully.",
+    });
   };
 
   const login = (password: string) => {
     // Simple owner login check - in production you'd want this more secure
-    if (password === 'owner123') {
+    if (password === 'flowerexpress2024') {
       setIsOwnerLoggedIn(true);
+      toast({
+        title: "Admin Access Granted",
+        description: "Welcome to FlowerExpress Admin Panel",
+      });
       return true;
     }
     return false;
@@ -82,6 +143,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isOwner,
     login,
     logout,
+    signUp,
+    signIn,
   };
 
   return (

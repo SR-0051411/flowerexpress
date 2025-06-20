@@ -1,308 +1,234 @@
 
 import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Flower, Mail, Lock, User, Phone, MapPin } from "lucide-react";
+import { Flower2, Mail, Lock, User, Shield, Heart, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
-  const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [signUpData, setSignUpData] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+  });
+  const [signInData, setSignInData] = useState({
+    email: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
 
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: fullName,
-            phone: phone,
-          }
-        }
-      });
-
-      if (error) {
-        if (error.message.includes("already registered")) {
-          toast({
-            title: "Account Already Exists",
-            description: "This email is already registered. Please try signing in instead.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Registration Failed",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
-      } else {
-        toast({
-          title: "Welcome to FlowerExpress! 🌸",
-          description: "Please check your email to verify your account and complete registration.",
-          duration: 6000,
-        });
-        // Clear form
-        setEmail("");
-        setPassword("");
-        setFullName("");
-        setPhone("");
-      }
-    } catch (error) {
+    const result = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+    
+    if (result.success) {
       toast({
-        title: "Registration Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Account Created! 🎉",
+        description: result.message,
+      });
+      setSignUpData({ email: "", password: "", fullName: "" });
+    } else {
+      toast({
+        title: "Sign Up Failed",
+        description: result.message,
         variant: "destructive",
       });
     }
-
-    setLoading(false);
+    
+    setIsLoading(false);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          toast({
-            title: "Login Failed",
-            description: "Invalid email or password. Please check your credentials and try again.",
-            variant: "destructive",
-          });
-        } else if (error.message.includes("Email not confirmed")) {
-          toast({
-            title: "Email Not Verified",
-            description: "Please check your email and click the verification link before signing in.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Login Failed",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
-      } else {
-        toast({
-          title: "Welcome back! 🌸",
-          description: "You have successfully signed in to FlowerExpress.",
-        });
-      }
-    } catch (error) {
+    const result = await signIn(signInData.email, signInData.password);
+    
+    if (result.success) {
       toast({
-        title: "Login Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Welcome Back! 🌸",
+        description: result.message,
+      });
+      navigate("/");
+    } else {
+      toast({
+        title: "Sign In Failed",
+        description: result.message,
         variant: "destructive",
       });
     }
-
-    setLoading(false);
+    
+    setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-r from-pink-500 to-rose-400 rounded-full flex items-center justify-center shadow-lg">
-              <Flower className="w-10 h-10 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Logo and Brand */}
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-400 rounded-full flex items-center justify-center shadow-lg">
+              <Flower2 className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">FlowerExpress</h1>
-          <p className="text-gray-600 text-lg">Fresh flowers delivered to your door</p>
-          <p className="text-sm text-gray-500 mt-2">Experience the beauty of nature with every delivery</p>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-transparent">
+              FlowerExpress
+            </h1>
+            <p className="text-gray-600 mt-2">Your premium flower delivery service</p>
+          </div>
         </div>
 
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-gray-800">Welcome</CardTitle>
+        {/* Features */}
+        <div className="grid grid-cols-3 gap-4 text-center text-sm">
+          <div className="space-y-2">
+            <Shield className="w-8 h-8 mx-auto text-green-600" />
+            <p className="text-gray-600">Secure & Safe</p>
+          </div>
+          <div className="space-y-2">
+            <Heart className="w-8 h-8 mx-auto text-red-500" />
+            <p className="text-gray-600">Fresh Flowers</p>
+          </div>
+          <div className="space-y-2">
+            <Star className="w-8 h-8 mx-auto text-yellow-500" />
+            <p className="text-gray-600">Premium Quality</p>
+          </div>
+        </div>
+
+        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-2xl text-gray-800">Welcome</CardTitle>
             <CardDescription className="text-gray-600">
-              Join thousands of happy customers who trust FlowerExpress
+              Join FlowerExpress for the best flower delivery experience
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin" className="text-sm font-medium">Sign In</TabsTrigger>
-                <TabsTrigger value="signup" className="text-sm font-medium">Create Account</TabsTrigger>
+                <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+                  Sign Up
+                </TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-5">
+
+              <TabsContent value="signin" className="space-y-6">
+                <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email" className="text-sm font-medium text-gray-700">
-                      Email Address
-                    </Label>
+                    <Label htmlFor="signin-email" className="text-gray-700 font-medium">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signin-email"
                         type="email"
                         placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={signInData.email}
+                        onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
                         className="pl-10 h-12 border-gray-300 focus:border-pink-500 focus:ring-pink-500"
                         required
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password" className="text-sm font-medium text-gray-700">
-                      Password
-                    </Label>
+                    <Label htmlFor="signin-password" className="text-gray-700 font-medium">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signin-password"
                         type="password"
                         placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={signInData.password}
+                        onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
                         className="pl-10 h-12 border-gray-300 focus:border-pink-500 focus:ring-pink-500"
                         required
                       />
                     </div>
                   </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-medium text-base shadow-lg"
-                    disabled={loading}
+                  <Button
+                    type="submit"
+                    className="w-full h-12 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-medium shadow-lg"
+                    disabled={isLoading}
                   >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Signing In...
-                      </>
-                    ) : (
-                      "Sign In to FlowerExpress"
-                    )}
+                    {isLoading ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
               </TabsContent>
-              
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-5">
+
+              <TabsContent value="signup" className="space-y-6">
+                <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name" className="text-sm font-medium text-gray-700">
-                      Full Name
-                    </Label>
+                    <Label htmlFor="signup-name" className="text-gray-700 font-medium">Full Name</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signup-name"
                         type="text"
                         placeholder="Enter your full name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        value={signUpData.fullName}
+                        onChange={(e) => setSignUpData({ ...signUpData, fullName: e.target.value })}
                         className="pl-10 h-12 border-gray-300 focus:border-pink-500 focus:ring-pink-500"
                         required
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email" className="text-sm font-medium text-gray-700">
-                      Email Address
-                    </Label>
+                    <Label htmlFor="signup-email" className="text-gray-700 font-medium">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signup-email"
                         type="email"
                         placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={signUpData.email}
+                        onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
                         className="pl-10 h-12 border-gray-300 focus:border-pink-500 focus:ring-pink-500"
                         required
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-phone" className="text-sm font-medium text-gray-700">
-                      Phone Number
-                    </Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-phone"
-                        type="tel"
-                        placeholder="Enter your phone number"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="pl-10 h-12 border-gray-300 focus:border-pink-500 focus:ring-pink-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">
-                      Password
-                    </Label>
+                    <Label htmlFor="signup-password" className="text-gray-700 font-medium">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signup-password"
                         type="password"
-                        placeholder="Create a secure password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Create a strong password"
+                        value={signUpData.password}
+                        onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
                         className="pl-10 h-12 border-gray-300 focus:border-pink-500 focus:ring-pink-500"
                         required
                         minLength={6}
                       />
                     </div>
-                    <p className="text-xs text-gray-500">Password must be at least 6 characters long</p>
                   </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-medium text-base shadow-lg"
-                    disabled={loading}
+                  <Button
+                    type="submit"
+                    className="w-full h-12 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-medium shadow-lg"
+                    disabled={isLoading}
                   >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Creating Account...
-                      </>
-                    ) : (
-                      "Join FlowerExpress"
-                    )}
+                    {isLoading ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
-            
-            <div className="mt-8 text-center">
-              <p className="text-xs text-gray-500">
-                By creating an account, you agree to our Terms of Service and Privacy Policy
-              </p>
-            </div>
           </CardContent>
         </Card>
-        
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help? Contact us at{" "}
-            <a href="mailto:support@flowerexpress.com" className="text-pink-600 hover:text-pink-700 font-medium">
-              support@flowerexpress.com
-            </a>
-          </p>
+
+        {/* Terms and Privacy */}
+        <div className="text-center text-xs text-gray-500 space-y-1">
+          <p>By signing up, you agree to our Terms of Service and Privacy Policy</p>
+          <p className="font-medium text-pink-600">🌸 FlowerExpress - Premium Flower Delivery 🌸</p>
         </div>
       </div>
     </div>
