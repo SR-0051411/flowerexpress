@@ -6,6 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import AdminPanel from "@/components/AdminPanel";
 import CheckoutForm from "@/components/CheckoutForm";
 import OrderManagement from "@/components/OrderManagement";
+import OwnerLogin from "@/components/OwnerLogin";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ProductGrid from "@/components/ProductGrid";
@@ -20,12 +21,13 @@ import { useCartManagement } from "@/hooks/useCartManagement";
 import { initialFlowers, Flower } from "@/data/flowersData";
 
 const IndexContent = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isOwner } = useAuth();
   const [flowers, setFlowers] = useState<Flower[]>(initialFlowers);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
+  const [isOwnerLoginOpen, setIsOwnerLoginOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -65,9 +67,6 @@ const IndexContent = () => {
     setIsCheckoutOpen(false);
   };
 
-  // Check if user is admin (you can customize this logic)
-  const isAdmin = user?.email === 'admin@flowerexpress.com';
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50">
       <Header 
@@ -75,9 +74,10 @@ const IndexContent = () => {
         onCartClick={() => setIsCartOpen(true)}
         onAdminPanelClick={() => setIsAdminPanelOpen(true)}
         onOrderManagementClick={() => setIsOrderManagementOpen(true)}
+        onOwnerLoginClick={() => setIsOwnerLoginOpen(true)}
         onSignOut={signOut}
         userEmail={user?.email}
-        isAdmin={isAdmin}
+        isAdmin={isOwner}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -117,7 +117,14 @@ const IndexContent = () => {
         onOrderSuccess={handleOrderSuccess}
       />
 
-      {isAdmin && (
+      {/* Owner Login Dialog */}
+      <OwnerLogin
+        isOpen={isOwnerLoginOpen}
+        onClose={() => setIsOwnerLoginOpen(false)}
+      />
+
+      {/* Admin/Owner Panels - Only show if user is owner */}
+      {isOwner && (
         <>
           <AdminPanel
             isOpen={isAdminPanelOpen}

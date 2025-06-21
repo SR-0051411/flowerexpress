@@ -1,7 +1,8 @@
 
-import { ShoppingCart, Settings, Package, LogOut, User } from "lucide-react";
+import { ShoppingCart, Settings, Package, LogOut, User, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ interface HeaderProps {
   onCartClick: () => void;
   onAdminPanelClick: () => void;
   onOrderManagementClick: () => void;
+  onOwnerLoginClick: () => void;
   onSignOut: () => void;
   userEmail?: string;
   isAdmin?: boolean;
@@ -25,11 +27,13 @@ const Header = ({
   onCartClick, 
   onAdminPanelClick, 
   onOrderManagementClick, 
+  onOwnerLoginClick,
   onSignOut,
   userEmail,
   isAdmin
 }: HeaderProps) => {
   const { t } = useLanguage();
+  const { isOwner } = useAuth();
 
   return (
     <header className="bg-white shadow-sm border-b border-pink-100 sticky top-0 z-50">
@@ -46,7 +50,8 @@ const Header = ({
           </div>
           
           <div className="flex items-center space-x-4">
-            {isAdmin && (
+            {/* Owner/Admin Controls */}
+            {isOwner ? (
               <div className="flex space-x-2">
                 <Button 
                   onClick={onAdminPanelClick}
@@ -63,6 +68,14 @@ const Header = ({
                   View Orders
                 </Button>
               </div>
+            ) : (
+              <Button 
+                onClick={onOwnerLoginClick}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Owner Login
+              </Button>
             )}
             
             <Button 
