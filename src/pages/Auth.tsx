@@ -20,8 +20,9 @@ const Auth = () => {
     email: "",
     password: "",
   });
+  const [ownerPassword, setOwnerPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, signIn } = useAuth();
+  const { signUp, signIn, login } = useAuth();
   const navigate = useNavigate();
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -70,6 +71,24 @@ const Auth = () => {
     setIsLoading(false);
   };
 
+  const handleOwnerLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (login(ownerPassword)) {
+      toast({
+        title: "Owner Access Granted! 🔓",
+        description: "Welcome to FlowerExpress Admin Panel",
+      });
+      navigate("/");
+    } else {
+      toast({
+        title: "Access Denied",
+        description: "Invalid owner password",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
@@ -113,12 +132,15 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                   Sign In
                 </TabsTrigger>
                 <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                   Sign Up
+                </TabsTrigger>
+                <TabsTrigger value="owner" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+                  Owner
                 </TabsTrigger>
               </TabsList>
 
@@ -218,6 +240,38 @@ const Auth = () => {
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating Account..." : "Create Account"}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="owner" className="space-y-6">
+                <div className="text-center mb-4">
+                  <Shield className="w-12 h-12 mx-auto text-purple-600 mb-2" />
+                  <h3 className="text-lg font-semibold text-gray-800">Owner Access</h3>
+                  <p className="text-sm text-gray-600">Enter owner credentials to access admin panel</p>
+                </div>
+                
+                <form onSubmit={handleOwnerLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="owner-password" className="text-gray-700 font-medium">Owner Password</Label>
+                    <div className="relative">
+                      <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="owner-password"
+                        type="password"
+                        placeholder="Enter owner password"
+                        value={ownerPassword}
+                        onChange={(e) => setOwnerPassword(e.target.value)}
+                        className="pl-10 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full h-12 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium shadow-lg"
+                  >
+                    Login as Owner
                   </Button>
                 </form>
               </TabsContent>
