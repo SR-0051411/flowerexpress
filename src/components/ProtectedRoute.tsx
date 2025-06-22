@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isOwner } = useAuth();
 
   if (loading) {
     return (
@@ -21,7 +21,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) {
+  // Allow access if user is logged in OR if they're logged in as owner
+  if (!user && !isOwner) {
     return <Auth />;
   }
 
