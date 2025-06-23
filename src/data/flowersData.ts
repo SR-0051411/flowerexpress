@@ -12,122 +12,193 @@ export interface Flower {
   customDesc?: string;
   tiedLength?: number;
   ballQuantity?: number;
-  imageFileUrl?: string; // Allow real images for flowers, optional
+  imageFileUrl?: string;
 }
 
+// Updated flower data with Tamil flowers
 export const initialFlowers: Flower[] = [
   {
     id: "1",
-    nameKey: "redRoses",
-    price: 299,
-    image: "🌹",
-    descKey: "redRosesDesc",
-    category: "flowers",
+    nameKey: "malli",
+    price: 150,
+    image: "🌼",
+    descKey: "malliDesc",
+    category: "spare",
     available: true,
-    tiedLength: 4,
-    ballQuantity: 1
+    isCustom: true,
+    customName: "மல்லி (Jasmine)",
+    customDesc: "புதிய மல்லி பூக்கள் - Fresh jasmine flowers"
   },
   {
-    id: "2",
-    nameKey: "sunflowers",
-    price: 199,
-    image: "🌻",
-    descKey: "sunflowersDesc",
-    category: "flowers",
+    id: "2", 
+    nameKey: "mullai",
+    price: 120,
+    image: "🌸",
+    descKey: "mullaiDesc", 
+    category: "spare",
     available: true,
-    tiedLength: 3.5,
-    ballQuantity: 1
+    isCustom: true,
+    customName: "முல்லை (Arabian Jasmine)",
+    customDesc: "நறுமணமுள்ள முல்லை பூக்கள் - Fragrant Arabian jasmine"
   },
   {
     id: "3",
-    nameKey: "whiteLilies",
-    price: 249,
+    nameKey: "jathy",
+    price: 180,
     image: "🌺",
-    descKey: "whiteLiliesDesc",
-    category: "flowers",
+    descKey: "jathyDesc",
+    category: "spare", 
     available: true,
-    tiedLength: 4,
-    ballQuantity: 1
+    isCustom: true,
+    customName: "ஜாதி (Nutmeg Flower)",
+    customDesc: "அழகான ஜாதிப்பூ - Beautiful nutmeg flowers"
   },
   {
     id: "4",
-    nameKey: "pinkTulips",
-    price: 279,
-    image: "🌷",
-    descKey: "pinkTulipsDesc",
-    category: "flowers",
+    nameKey: "arali",
+    price: 100,
+    image: "🌹",
+    descKey: "araliDesc",
+    category: "spare",
     available: true,
-    tiedLength: 3,
-    ballQuantity: 1
+    isCustom: true,
+    customName: "அரளி (Nerium)",
+    customDesc: "வண்ணமயமான அரளி பூக்கள் - Colorful nerium flowers"
   },
   {
     id: "5",
-    nameKey: "yellowMarigolds",
-    price: 149,
-    image: "🌼",
-    descKey: "yellowMarigoldsDesc",
-    category: "flowers",
+    nameKey: "thulasi",
+    price: 80,
+    image: "🌿",
+    descKey: "thulasiDesc",
+    category: "spare",
     available: true,
-    tiedLength: 5,
-    ballQuantity: 2
+    isCustom: true,
+    customName: "துளசி (Holy Basil)",
+    customDesc: "புனித துளசி இலைகள் - Sacred holy basil leaves"
   },
   {
     id: "6",
-    nameKey: "purpleOrchids",
-    price: 399,
-    image: "🌸",
-    descKey: "purpleOrchidsDesc",
-    category: "flowers",
+    nameKey: "marikolunthu", 
+    price: 200,
+    image: "🌻",
+    descKey: "marikolunthuDesc",
+    category: "spare",
     available: true,
-    tiedLength: 4.5,
-    ballQuantity: 1
+    isCustom: true,
+    customName: "மாரிகொழுந்து (Marigold)",
+    customDesc: "பிரகாசமான மாரிகொழுந்து - Bright marigold flowers"
   },
   {
     id: "7",
-    nameKey: "",
-    customName: "Rose Garland",
-    price: 150,
-    image: "🌹",
-    descKey: "",
-    customDesc: "Beautiful fresh rose garland for special occasions",
-    category: "maala",
+    nameKey: "kanakamparam",
+    price: 250,
+    image: "🌼",
+    descKey: "kanakaramDesc",
+    category: "spare",
     available: true,
     isCustom: true,
-    tiedLength: 6,
-    ballQuantity: 3
+    customName: "கனகாம்பர (Crossandra)",
+    customDesc: "அழகான கனகாம்பர பூக்கள் - Beautiful crossandra flowers"
   },
   {
     id: "8",
-    nameKey: "",
-    customName: "Fresh Coconut",
-    price: 45,
-    image: "🥥",
-    descKey: "",
-    customDesc: "Fresh coconut for pooja and cooking",
-    category: "coconut",
+    nameKey: "sampangi",
+    price: 170,
+    image: "🌸",
+    descKey: "sampangiDesc", 
+    category: "spare",
     available: true,
-    isCustom: true
+    isCustom: true,
+    customName: "சம்பங்கி (Champak)",
+    customDesc: "நறுமணமுள்ள சம்பங்கி - Fragrant champak flowers"
   },
   {
     id: "9",
-    nameKey: "",
-    customName: "Sesame Oil",
-    price: 85,
-    image: "🛢️",
-    descKey: "",
-    customDesc: "Pure sesame oil for pooja and cooking",
-    category: "oils",
+    nameKey: "sevanthi",
+    price: 140,
+    image: "🌼",
+    descKey: "sevanthiDesc",
+    category: "spare", 
     available: true,
-    isCustom: true
+    isCustom: true,
+    customName: "செவந்தி (Chrysanthemum)",
+    customDesc: "அழகான செவந்தி பூக்கள் - Beautiful chrysanthemum flowers"
+  },
+  {
+    id: "10",
+    nameKey: "vettrilai",
+    price: 60,
+    image: "🍃",
+    descKey: "vettrilaiDesc",
+    category: "spare",
+    available: true,
+    isCustom: true,
+    customName: "வெற்றிலை (Betel Leaf)",
+    customDesc: "புதிய வெற்றிலை - Fresh betel leaves"
+  },
+  {
+    id: "11", 
+    nameKey: "malliTied",
+    price: 300,
+    image: "🌼",
+    descKey: "malliTiedDesc",
+    category: "tied",
+    available: true,
+    isCustom: true,
+    customName: "மல்லி கட்டு (Jasmine Bundle)",
+    customDesc: "அழகாக கட்டப்பட்ட மல்லி பூக்கள் - Beautifully tied jasmine flowers",
+    tiedLength: 4,
+    ballQuantity: 2
+  },
+  {
+    id: "12",
+    nameKey: "mixedTied", 
+    price: 400,
+    image: "🌺",
+    descKey: "mixedTiedDesc",
+    category: "tied",
+    available: true,
+    isCustom: true,
+    customName: "கலவை கட்டு (Mixed Flower Bundle)",
+    customDesc: "பல்வேறு பூக்கள் கலவை கட்டு - Mixed flower bundle",
+    tiedLength: 5,
+    ballQuantity: 3
+  },
+  {
+    id: "13",
+    nameKey: "malliGarland",
+    price: 500,
+    image: "🌸",
+    descKey: "malliGarlandDesc", 
+    category: "garland",
+    available: true,
+    isCustom: true,
+    customName: "மல்லி மாலை (Jasmine Garland)",
+    customDesc: "பாரம்பரிய மல்லி மாலை - Traditional jasmine garland",
+    tiedLength: 6,
+    ballQuantity: 4
+  },
+  {
+    id: "14",
+    nameKey: "mixedGarland",
+    price: 650,
+    image: "🌺", 
+    descKey: "mixedGarlandDesc",
+    category: "garland",
+    available: true,
+    isCustom: true,
+    customName: "கலவை மாலை (Mixed Garland)",
+    customDesc: "பல்வேறு பூக்கள் கலவை மாலை - Mixed flower garland",
+    tiedLength: 8,
+    ballQuantity: 5
   }
 ];
 
+// Updated categories - only 4 as requested
 export const categories = [
   { id: "all", titleKey: "allFlowers", image: "🌺" },
-  { id: "flowers", titleKey: "flowers", image: "🌹" },
-  { id: "maala", titleKey: "maala", image: "🌿" },
-  { id: "pooja", titleKey: "pooja", image: "🕉️" },
-  { id: "oils", titleKey: "oils", image: "🛢️" },
-  { id: "coconut", titleKey: "coconut", image: "🥥" },
-  { id: "other", titleKey: "other", image: "📦" }
+  { id: "spare", titleKey: "spareFlowers", image: "🌼" },
+  { id: "tied", titleKey: "tiedFlower", image: "🌿" },
+  { id: "garland", titleKey: "flowerGarland", image: "🌸" }
 ];

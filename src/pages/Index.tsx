@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import Cart from "@/components/Cart";
@@ -13,6 +12,8 @@ import ProductGrid from "@/components/ProductGrid";
 import FeaturesSection from "@/components/FeaturesSection";
 import EnquiryButton from "@/components/EnquiryButton";
 import EnquiryForm from "@/components/EnquiryForm";
+import FeedbackButton from "@/components/FeedbackButton";
+import FeedbackForm from "@/components/FeedbackForm";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
@@ -28,6 +29,7 @@ const IndexContent = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
   const [isOwnerLoginOpen, setIsOwnerLoginOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -99,6 +101,13 @@ const IndexContent = () => {
       {/* Enquiry System */}
       <EnquiryButton />
       <EnquiryForm />
+
+      {/* Feedback System */}
+      <FeedbackButton onClick={() => setIsFeedbackOpen(true)} />
+      <FeedbackForm 
+        isOpen={isFeedbackOpen} 
+        onClose={() => setIsFeedbackOpen(false)} 
+      />
 
       <Cart
         isOpen={isCartOpen}
