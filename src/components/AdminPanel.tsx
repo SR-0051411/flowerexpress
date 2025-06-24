@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -191,11 +192,19 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
   };
 
   const getProductName = (flower: Flower) => {
-    return flower.isCustom ? flower.customName : t(flower.nameKey);
+    const nameValue = getFlowerValue(flower, 'customName');
+    if (flower.isCustom && typeof nameValue === 'string') {
+      return nameValue;
+    }
+    return t(flower.nameKey);
   };
 
   const getProductDesc = (flower: Flower) => {
-    return flower.isCustom ? flower.customDesc : t(flower.descKey);
+    const descValue = getFlowerValue(flower, 'customDesc');
+    if (flower.isCustom && typeof descValue === 'string') {
+      return descValue;
+    }
+    return t(flower.descKey);
   };
 
   return (
@@ -364,7 +373,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                   )}
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold">{getProductName(flower)}</h3>
-                    <p className="text-sm text-gray-600">{getFlowerValue(flower, 'category')}</p>
+                    <p className="text-sm text-gray-600">{String(getFlowerValue(flower, 'category'))}</p>
                     {(getFlowerValue(flower, 'tiedLength') || getFlowerValue(flower, 'ballQuantity')) && (
                       <div className="text-xs text-gray-500 mt-1">
                         {getFlowerValue(flower, 'ballQuantity') && <span>🌸 {String(getFlowerValue(flower, 'ballQuantity'))} ball{(getFlowerValue(flower, 'ballQuantity') as number) > 1 ? 's' : ''} </span>}
@@ -486,7 +495,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       <Label htmlFor={`name-${flower.id}`}>Product Name</Label>
                       <Input
                         id={`name-${flower.id}`}
-                        value={getFlowerValue(flower, 'customName') as string || ''}
+                        value={String(getFlowerValue(flower, 'customName') || '')}
                         onChange={(e) => 
                           handleUpdateFlower(flower.id, 'customName', e.target.value)
                         }
@@ -500,7 +509,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       <Label htmlFor={`desc-${flower.id}`}>Description</Label>
                       <Textarea
                         id={`desc-${flower.id}`}
-                        value={getFlowerValue(flower, 'customDesc') as string || ''}
+                        value={String(getFlowerValue(flower, 'customDesc') || '')}
                         onChange={(e) => 
                           handleUpdateFlower(flower.id, 'customDesc', e.target.value)
                         }
