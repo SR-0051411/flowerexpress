@@ -13,7 +13,7 @@ const HeroSection = () => {
       <p className="text-xl text-gray-600 mb-8">
         {t('heroSubtitle')}
       </p>
-      <div className="text-6xl mb-8">🌸🌹🌺🌻🌷🥥🕉️</div>
+      <div className="text-6xl mb-8">🌼🌸🌺🌻🌷🌿🍃🌱🌹</div>
     </div>
   );
 };
