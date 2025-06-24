@@ -33,7 +33,7 @@ const Header = ({
   isAdmin
 }: HeaderProps) => {
   const { t } = useLanguage();
-  const { isOwner } = useAuth();
+  const { isOwner, user } = useAuth();
 
   return (
     <header className="bg-white shadow-sm border-b border-pink-100 sticky top-0 z-50">
@@ -50,7 +50,7 @@ const Header = ({
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* Owner/Admin Controls */}
+            {/* Owner/Admin Controls - Only show if user is owner */}
             {isOwner ? (
               <div className="flex space-x-2">
                 <Button 
@@ -69,13 +69,16 @@ const Header = ({
                 </Button>
               </div>
             ) : (
-              <Button 
-                onClick={onOwnerLoginClick}
-                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2"
-              >
-                <Shield className="w-4 h-4 mr-2" />
-                Owner Login
-              </Button>
+              // Only show Owner Login button if no user is signed in
+              !user && (
+                <Button 
+                  onClick={onOwnerLoginClick}
+                  className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  Owner Login
+                </Button>
+              )
             )}
             
             <Button 
@@ -91,24 +94,27 @@ const Header = ({
               )}
             </Button>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">{userEmail?.split('@')[0]}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="px-2 py-1.5 text-sm font-medium">
-                  {userEmail}
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onSignOut} className="text-red-600">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* User dropdown - Only show if user is signed in */}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">{userEmail?.split('@')[0]}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5 text-sm font-medium">
+                    {userEmail}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onSignOut} className="text-red-600">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
