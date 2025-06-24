@@ -19,8 +19,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
 import { EnquiryProvider } from "@/contexts/EnquiryContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
-import { initialFlowers } from "@/data/flowersData";
-import { Flower } from "@/components/admin/types";
+import { initialFlowers, Flower } from "@/data/flowersData";
 
 const IndexContent = () => {
   const { user, signOut, isOwner } = useAuth();
