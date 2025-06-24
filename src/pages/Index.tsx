@@ -23,7 +23,7 @@ import { useCartManagement } from "@/hooks/useCartManagement";
 
 const IndexContent = () => {
   const { user, signOut, isOwner } = useAuth();
-  const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
+  const { flowers } = useFlowers();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -111,10 +111,6 @@ const IndexContent = () => {
           <AdminPanel
             isOpen={isAdminPanelOpen}
             onClose={() => setIsAdminPanelOpen(false)}
-            flowers={flowers}
-            onUpdateFlower={updateFlower}
-            onAddFlower={addFlower}
-            onDeleteFlower={deleteFlower}
           />
 
           <OrderManagement
