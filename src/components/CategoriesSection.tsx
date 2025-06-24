@@ -1,26 +1,27 @@
 
 import CategoryCard from "@/components/CategoryCard";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { categories } from "@/data/flowersData";
 
-interface CategoriesSectionProps {
-  selectedCategory: string;
-  onCategorySelect: (categoryId: string) => void;
-}
+const categoryTitles = {
+  all: "அனைத்து பூக்கள் (All Flowers)",
+  spare: "தனித்த பூக்கள் (Spare Flowers)",
+  tied: "கட்டிய பூ (Tied Flowers)", 
+  garland: "பூ மாலை (Flower Garlands)"
+};
 
-const CategoriesSection = ({ selectedCategory, onCategorySelect }: CategoriesSectionProps) => {
-  const { t } = useLanguage();
-
+const CategoriesSection = () => {
   return (
     <div className="mb-12">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">{t('shopByCategory')}</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        பூ வகைகள் அடிப்படையில் கடை (Shop by Category)
+      </h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
         {categories.map(category => (
           <CategoryCard
             key={category.id}
-            title={t(category.titleKey)}
+            title={categoryTitles[category.id as keyof typeof categoryTitles]}
             image={category.image}
-            onClick={() => onCategorySelect(category.id)}
+            categoryId={category.id}
           />
         ))}
       </div>

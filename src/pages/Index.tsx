@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Header from "@/components/Header";
 import Cart from "@/components/Cart";
@@ -8,7 +9,6 @@ import OrderManagement from "@/components/OrderManagement";
 import OwnerLogin from "@/components/OwnerLogin";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
-import ProductGrid from "@/components/ProductGrid";
 import FeaturesSection from "@/components/FeaturesSection";
 import EnquiryButton from "@/components/EnquiryButton";
 import EnquiryForm from "@/components/EnquiryForm";
@@ -31,7 +31,6 @@ const IndexContent = () => {
   const [isOwnerLoginOpen, setIsOwnerLoginOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const {
     cartItems,
@@ -85,16 +84,7 @@ const IndexContent = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <HeroSection />
         <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-        <CategoriesSection 
-          selectedCategory={selectedCategory}
-          onCategorySelect={setSelectedCategory}
-        />
-        <ProductGrid
-          flowers={flowers}
-          searchTerm={searchTerm}
-          selectedCategory={selectedCategory}
-          onAddToCart={addToCart}
-        />
+        <CategoriesSection />
         <FeaturesSection />
       </main>
 
