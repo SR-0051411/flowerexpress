@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -366,8 +367,8 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     <p className="text-sm text-gray-600">{getFlowerValue(flower, 'category')}</p>
                     {(getFlowerValue(flower, 'tiedLength') || getFlowerValue(flower, 'ballQuantity')) && (
                       <div className="text-xs text-gray-500 mt-1">
-                        {getFlowerValue(flower, 'ballQuantity') && <span>🌸 {getFlowerValue(flower, 'ballQuantity')} ball{(getFlowerValue(flower, 'ballQuantity') as number) > 1 ? 's' : ''} </span>}
-                        {getFlowerValue(flower, 'tiedLength') && <span>📏 {getFlowerValue(flower, 'tiedLength')}ft</span>}
+                        {getFlowerValue(flower, 'ballQuantity') && <span>🌸 {String(getFlowerValue(flower, 'ballQuantity'))} ball{(getFlowerValue(flower, 'ballQuantity') as number) > 1 ? 's' : ''} </span>}
+                        {getFlowerValue(flower, 'tiedLength') && <span>📏 {String(getFlowerValue(flower, 'tiedLength'))}ft</span>}
                       </div>
                     )}
                     {flower.isCustom && (
@@ -456,7 +457,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       id={`tied-length-${flower.id}`}
                       type="number"
                       step="0.5"
-                      value={getFlowerValue(flower, 'tiedLength') || ''}
+                      value={String(getFlowerValue(flower, 'tiedLength') || '')}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'tiedLength', parseFloat(e.target.value) || undefined)
                       }
@@ -469,7 +470,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     <Input
                       id={`ball-quantity-${flower.id}`}
                       type="number"
-                      value={getFlowerValue(flower, 'ballQuantity') || ''}
+                      value={String(getFlowerValue(flower, 'ballQuantity') || '')}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'ballQuantity', parseInt(e.target.value) || undefined)
                       }
