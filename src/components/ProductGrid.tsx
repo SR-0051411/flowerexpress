@@ -43,9 +43,32 @@ const ProductGrid = ({ flowers, searchTerm, selectedCategory, onAddToCart }: Pro
     );
   };
 
+  const renderNoResults = () => {
+    if (filteredFlowers.length > 0) return null;
+    
+    return (
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">🔍</div>
+        <div className="text-xl font-bold text-gray-700 mb-2">
+          மன்னிக்கவும், தேடிய பூ கிடைக்கவில்லை
+        </div>
+        <div className="text-gray-500 mb-4">
+          Sorry, the flower you searched for is not available
+        </div>
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto">
+          <div className="flex items-center justify-center gap-2 text-green-800">
+            <span className="bg-green-100 px-2 py-1 rounded font-bold text-sm">FRESH</span>
+            <span className="text-sm">புதிய பூக்கள் மட்டுமே - Only Fresh Flowers Available</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="mb-12">
       {renderCategoryTitle()}
+      {renderNoResults()}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredFlowers.map(flower => (
           <FlowerCard
