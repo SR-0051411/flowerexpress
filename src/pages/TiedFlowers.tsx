@@ -4,8 +4,11 @@ import Header from "@/components/Header";
 import SearchBar from "@/components/SearchBar";
 import ProductGrid from "@/components/ProductGrid";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Cart from "@/components/Cart";
+import CheckoutForm from "@/components/CheckoutForm";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { PaymentProvider } from "@/contexts/PaymentContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
 import { initialFlowers, Flower } from "@/data/flowersData";
 import { Link } from "react-router-dom";
@@ -15,18 +18,35 @@ const TiedFlowersContent = () => {
   const { user, signOut, isOwner } = useAuth();
   const [flowers] = useState<Flower[]>(initialFlowers);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const {
     cartItems,
     addToCart,
-    cartCount
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    cartCount,
+    cartTotal
   } = useCartManagement(flowers);
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) return;
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleOrderSuccess = () => {
+    clearCart();
+    setIsCheckoutOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50">
       <Header 
         cartCount={cartCount} 
-        onCartClick={() => {}}
+        onCartClick={() => setIsCartOpen(true)}
         onAdminPanelClick={() => {}}
         onOrderManagementClick={() => {}}
         onOwnerLoginClick={() => {}}
@@ -53,6 +73,23 @@ const TiedFlowersContent = () => {
           onAddToCart={addToCart}
         />
       </main>
+
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeFromCart}
+        onCheckout={handleCheckout}
+      />
+
+      <CheckoutForm
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        items={cartItems}
+        total={cartTotal}
+        onOrderSuccess={handleOrderSuccess}
+      />
     </div>
   );
 };
@@ -61,7 +98,9 @@ const TiedFlowers = () => {
   return (
     <AuthProvider>
       <LanguageProvider>
-        <TiedFlowersContent />
+        <PaymentProvider>
+          <TiedFlowersContent />
+        </PaymentProvider>
       </LanguageProvider>
     </AuthProvider>
   );
