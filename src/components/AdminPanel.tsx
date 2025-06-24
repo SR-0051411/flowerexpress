@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Save } from "lucide-react";
 
 interface Flower {
   id: string;
@@ -41,6 +41,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
   const { t } = useLanguage();
   const { isOwner, logout } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingFlowers, setEditingFlowers] = useState<{[key: string]: Flower}>({});
   const [newProduct, setNewProduct] = useState({
     nameKey: '',
     customName: '',
@@ -69,11 +70,34 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
   if (!isOwner) return null;
 
   const handleUpdateFlower = (flowerId: string, field: keyof Flower, value: any) => {
-    onUpdateFlower(flowerId, { [field]: value });
-    toast({
-      title: "Product Updated",
-      description: `${field} has been updated successfully`,
-    });
+    setEditingFlowers(prev => ({
+      ...prev,
+      [flowerId]: {
+        ...flowers.find(f => f.id === flowerId)!,
+        ...prev[flowerId],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSaveChanges = (flowerId: string) => {
+    const updatedFlower = editingFlowers[flowerId];
+    if (updatedFlower) {
+      onUpdateFlower(flowerId, updatedFlower);
+      setEditingFlowers(prev => {
+        const newState = { ...prev };
+        delete newState[flowerId];
+        return newState;
+      });
+      toast({
+        title: "Product Updated",
+        description: "Changes have been saved successfully",
+      });
+    }
+  };
+
+  const getFlowerValue = (flower: Flower, field: keyof Flower) => {
+    return editingFlowers[flower.id]?.[field] ?? flower[field];
   };
 
   const handleNewImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,8 +116,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
     const file = e.target.files?.[0] || null;
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      // Save the image file URL to the flower object in memory
-      onUpdateFlower(flower.id, { imageFileUrl: imageUrl });
+      handleUpdateFlower(flower.id, 'imageFileUrl', imageUrl);
     }
   };
 
@@ -122,7 +145,6 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
       ballQuantity: newProduct.ballQuantity > 0 ? newProduct.ballQuantity : undefined
     });
 
-    // Clean up object URL after it's used to prevent memory leaks
     if (newProduct.imageFileUrl) {
       URL.revokeObjectURL(newProduct.imageFileUrl);
     }
@@ -334,18 +356,18 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
             {flowers.map((flower) => (
               <div key={flower.id} className="border rounded-lg p-4 bg-pink-50">
                 <div className="flex items-center space-x-4 mb-4">
-                  {flower.imageFileUrl ? (
-                    <img src={flower.imageFileUrl} alt={flower.customName || flower.nameKey} className="w-12 h-12 rounded object-cover border" />
+                  {getFlowerValue(flower, 'imageFileUrl') ? (
+                    <img src={getFlowerValue(flower, 'imageFileUrl') as string} alt={flower.customName || flower.nameKey} className="w-12 h-12 rounded object-cover border" />
                   ) : (
-                    <span className="text-4xl">{flower.image}</span>
+                    <span className="text-4xl">{getFlowerValue(flower, 'image')}</span>
                   )}
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold">{getProductName(flower)}</h3>
-                    <p className="text-sm text-gray-600">{flower.category}</p>
-                    {(flower.tiedLength || flower.ballQuantity) && (
+                    <p className="text-sm text-gray-600">{getFlowerValue(flower, 'category')}</p>
+                    {(getFlowerValue(flower, 'tiedLength') || getFlowerValue(flower, 'ballQuantity')) && (
                       <div className="text-xs text-gray-500 mt-1">
-                        {flower.ballQuantity && <span>🌸 {flower.ballQuantity} ball{flower.ballQuantity > 1 ? 's' : ''} </span>}
-                        {flower.tiedLength && <span>📏 {flower.tiedLength}ft</span>}
+                        {getFlowerValue(flower, 'ballQuantity') && <span>🌸 {getFlowerValue(flower, 'ballQuantity')} ball{(getFlowerValue(flower, 'ballQuantity') as number) > 1 ? 's' : ''} </span>}
+                        {getFlowerValue(flower, 'tiedLength') && <span>📏 {getFlowerValue(flower, 'tiedLength')}ft</span>}
                       </div>
                     )}
                     {flower.isCustom && (
@@ -367,22 +389,34 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     <Label htmlFor={`available-${flower.id}`}>Available</Label>
                     <Switch
                       id={`available-${flower.id}`}
-                      checked={flower.available !== false}
+                      checked={getFlowerValue(flower, 'available') !== false}
                       onCheckedChange={(checked) => 
                         handleUpdateFlower(flower.id, 'available', checked)
                       }
                     />
                   </div>
-                  {flower.isCustom && (
-                    <Button
-                      onClick={() => handleDeleteProduct(flower.id)}
-                      variant="outline"
-                      size="sm"
-                      className="text-red-600 border-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
+                  <div className="flex space-x-2">
+                    {editingFlowers[flower.id] && (
+                      <Button
+                        onClick={() => handleSaveChanges(flower.id)}
+                        size="sm"
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                      >
+                        <Save className="w-4 h-4" />
+                        Save
+                      </Button>
+                    )}
+                    {flower.isCustom && (
+                      <Button
+                        onClick={() => handleDeleteProduct(flower.id)}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -391,7 +425,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     <Input
                       id={`price-${flower.id}`}
                       type="number"
-                      value={flower.price}
+                      value={getFlowerValue(flower, 'price') as number}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'price', parseInt(e.target.value) || 0)
                       }
@@ -401,7 +435,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                   <div>
                     <Label htmlFor={`category-${flower.id}`}>Category</Label>
                     <Select
-                      value={flower.category}
+                      value={getFlowerValue(flower, 'category') as string}
                       onValueChange={(value) => handleUpdateFlower(flower.id, 'category', value)}
                     >
                       <SelectTrigger className="mt-1">
@@ -422,7 +456,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       id={`tied-length-${flower.id}`}
                       type="number"
                       step="0.5"
-                      value={flower.tiedLength || ''}
+                      value={getFlowerValue(flower, 'tiedLength') || ''}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'tiedLength', parseFloat(e.target.value) || undefined)
                       }
@@ -435,7 +469,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     <Input
                       id={`ball-quantity-${flower.id}`}
                       type="number"
-                      value={flower.ballQuantity || ''}
+                      value={getFlowerValue(flower, 'ballQuantity') || ''}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'ballQuantity', parseInt(e.target.value) || undefined)
                       }
@@ -451,7 +485,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       <Label htmlFor={`name-${flower.id}`}>Product Name</Label>
                       <Input
                         id={`name-${flower.id}`}
-                        value={flower.customName || ''}
+                        value={getFlowerValue(flower, 'customName') as string || ''}
                         onChange={(e) => 
                           handleUpdateFlower(flower.id, 'customName', e.target.value)
                         }
@@ -465,7 +499,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       <Label htmlFor={`desc-${flower.id}`}>Description</Label>
                       <Textarea
                         id={`desc-${flower.id}`}
-                        value={flower.customDesc || ''}
+                        value={getFlowerValue(flower, 'customDesc') as string || ''}
                         onChange={(e) => 
                           handleUpdateFlower(flower.id, 'customDesc', e.target.value)
                         }
