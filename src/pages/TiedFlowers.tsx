@@ -9,14 +9,14 @@ import CheckoutForm from "@/components/CheckoutForm";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
+import { FlowersProvider, useFlowers } from "@/contexts/FlowersContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
-import { initialFlowers, Flower } from "@/data/flowersData";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const TiedFlowersContent = () => {
   const { user, signOut, isOwner } = useAuth();
-  const [flowers] = useState<Flower[]>(initialFlowers);
+  const { flowers } = useFlowers();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -99,7 +99,9 @@ const TiedFlowers = () => {
     <AuthProvider>
       <LanguageProvider>
         <PaymentProvider>
-          <TiedFlowersContent />
+          <FlowersProvider>
+            <TiedFlowersContent />
+          </FlowersProvider>
         </PaymentProvider>
       </LanguageProvider>
     </AuthProvider>

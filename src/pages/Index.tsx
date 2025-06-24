@@ -18,12 +18,12 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
 import { EnquiryProvider } from "@/contexts/EnquiryContext";
+import { FlowersProvider, useFlowers } from "@/contexts/FlowersContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
-import { initialFlowers, Flower } from "@/data/flowersData";
 
 const IndexContent = () => {
   const { user, signOut, isOwner } = useAuth();
-  const [flowers, setFlowers] = useState<Flower[]>(initialFlowers);
+  const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -40,21 +40,6 @@ const IndexContent = () => {
     cartCount,
     cartTotal
   } = useCartManagement(flowers);
-
-  const updateFlower = (id: string, updates: Partial<Flower>) => {
-    setFlowers(prev => prev.map(flower => 
-      flower.id === id ? { ...flower, ...updates } : flower
-    ));
-  };
-
-  const addFlower = (newFlower: Omit<Flower, 'id'>) => {
-    const id = Date.now().toString();
-    setFlowers(prev => [...prev, { ...newFlower, id }]);
-  };
-
-  const deleteFlower = (id: string) => {
-    setFlowers(prev => prev.filter(flower => flower.id !== id));
-  };
 
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
@@ -148,7 +133,9 @@ const Index = () => {
       <LanguageProvider>
         <PaymentProvider>
           <EnquiryProvider>
-            <IndexContent />
+            <FlowersProvider>
+              <IndexContent />
+            </FlowersProvider>
           </EnquiryProvider>
         </PaymentProvider>
       </LanguageProvider>
