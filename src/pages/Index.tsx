@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import Cart from "@/components/Cart";
@@ -20,7 +19,8 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
 import { EnquiryProvider } from "@/contexts/EnquiryContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
-import { initialFlowers, Flower } from "@/data/flowersData";
+import { initialFlowers } from "@/data/flowersData";
+import { Flower } from "@/components/admin/types";
 
 const IndexContent = () => {
   const { user, signOut, isOwner } = useAuth();
