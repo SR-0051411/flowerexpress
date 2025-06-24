@@ -102,6 +102,26 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
     return editingFlowers[flower.id]?.[field] ?? flower[field];
   };
 
+  // Helper function to safely render values, excluding File objects
+  const getSafeDisplayValue = (value: any): string => {
+    if (value instanceof File) {
+      return ''; // Don't render File objects
+    }
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value);
+  };
+
+  // Helper function to get numeric values safely
+  const getNumericValue = (value: any): number => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    const parsed = parseFloat(String(value));
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
   const handleNewImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (file) {
@@ -366,18 +386,18 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
             {flowers.map((flower) => (
               <div key={flower.id} className="border rounded-lg p-4 bg-pink-50">
                 <div className="flex items-center space-x-4 mb-4">
-                  {getFlowerValue(flower, 'imageFileUrl') ? (
-                    <img src={getFlowerValue(flower, 'imageFileUrl') as string} alt={flower.customName || flower.nameKey} className="w-12 h-12 rounded object-cover border" />
+                  {getSafeDisplayValue(getFlowerValue(flower, 'imageFileUrl')) ? (
+                    <img src={getSafeDisplayValue(getFlowerValue(flower, 'imageFileUrl'))} alt={flower.customName || flower.nameKey} className="w-12 h-12 rounded object-cover border" />
                   ) : (
-                    <span className="text-4xl">{getFlowerValue(flower, 'image')}</span>
+                    <span className="text-4xl">{getSafeDisplayValue(getFlowerValue(flower, 'image'))}</span>
                   )}
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold">{getProductName(flower)}</h3>
-                    <p className="text-sm text-gray-600">{String(getFlowerValue(flower, 'category'))}</p>
-                    {(getFlowerValue(flower, 'tiedLength') || getFlowerValue(flower, 'ballQuantity')) && (
+                    <p className="text-sm text-gray-600">{getSafeDisplayValue(getFlowerValue(flower, 'category'))}</p>
+                    {(getNumericValue(getFlowerValue(flower, 'tiedLength')) > 0 || getNumericValue(getFlowerValue(flower, 'ballQuantity')) > 0) && (
                       <div className="text-xs text-gray-500 mt-1">
-                        {getFlowerValue(flower, 'ballQuantity') && <span>🌸 {String(getFlowerValue(flower, 'ballQuantity'))} ball{(getFlowerValue(flower, 'ballQuantity') as number) > 1 ? 's' : ''} </span>}
-                        {getFlowerValue(flower, 'tiedLength') && <span>📏 {String(getFlowerValue(flower, 'tiedLength'))}ft</span>}
+                        {getNumericValue(getFlowerValue(flower, 'ballQuantity')) > 0 && <span>🌸 {getNumericValue(getFlowerValue(flower, 'ballQuantity'))} ball{getNumericValue(getFlowerValue(flower, 'ballQuantity')) > 1 ? 's' : ''} </span>}
+                        {getNumericValue(getFlowerValue(flower, 'tiedLength')) > 0 && <span>📏 {getNumericValue(getFlowerValue(flower, 'tiedLength'))}ft</span>}
                       </div>
                     )}
                     {flower.isCustom && (
@@ -435,7 +455,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     <Input
                       id={`price-${flower.id}`}
                       type="number"
-                      value={getFlowerValue(flower, 'price') as number}
+                      value={getNumericValue(getFlowerValue(flower, 'price'))}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'price', parseInt(e.target.value) || 0)
                       }
@@ -445,7 +465,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                   <div>
                     <Label htmlFor={`category-${flower.id}`}>Category</Label>
                     <Select
-                      value={getFlowerValue(flower, 'category') as string}
+                      value={getSafeDisplayValue(getFlowerValue(flower, 'category'))}
                       onValueChange={(value) => handleUpdateFlower(flower.id, 'category', value)}
                     >
                       <SelectTrigger className="mt-1">
@@ -466,7 +486,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       id={`tied-length-${flower.id}`}
                       type="number"
                       step="0.5"
-                      value={String(getFlowerValue(flower, 'tiedLength') || '')}
+                      value={getSafeDisplayValue(getFlowerValue(flower, 'tiedLength'))}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'tiedLength', parseFloat(e.target.value) || undefined)
                       }
@@ -479,7 +499,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                     <Input
                       id={`ball-quantity-${flower.id}`}
                       type="number"
-                      value={String(getFlowerValue(flower, 'ballQuantity') || '')}
+                      value={getSafeDisplayValue(getFlowerValue(flower, 'ballQuantity'))}
                       onChange={(e) => 
                         handleUpdateFlower(flower.id, 'ballQuantity', parseInt(e.target.value) || undefined)
                       }
@@ -495,7 +515,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       <Label htmlFor={`name-${flower.id}`}>Product Name</Label>
                       <Input
                         id={`name-${flower.id}`}
-                        value={String(getFlowerValue(flower, 'customName') || '')}
+                        value={getSafeDisplayValue(getFlowerValue(flower, 'customName'))}
                         onChange={(e) => 
                           handleUpdateFlower(flower.id, 'customName', e.target.value)
                         }
@@ -509,7 +529,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                       <Label htmlFor={`desc-${flower.id}`}>Description</Label>
                       <Textarea
                         id={`desc-${flower.id}`}
-                        value={String(getFlowerValue(flower, 'customDesc') || '')}
+                        value={getSafeDisplayValue(getFlowerValue(flower, 'customDesc'))}
                         onChange={(e) => 
                           handleUpdateFlower(flower.id, 'customDesc', e.target.value)
                         }
