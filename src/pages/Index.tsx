@@ -1,8 +1,8 @@
+
 import { useState } from "react";
 import Header from "@/components/Header";
 import Cart from "@/components/Cart";
 import SearchBar from "@/components/SearchBar";
-import ProductGrid from "@/components/ProductGrid";
 import AdminPanel from "@/components/AdminPanel";
 import CheckoutForm from "@/components/CheckoutForm";
 import OrderManagement from "@/components/OrderManagement";
@@ -30,8 +30,6 @@ const IndexContent = () => {
   const [isOrderManagementOpen, setIsOrderManagementOpen] = useState(false);
   const [isOwnerLoginOpen, setIsOwnerLoginOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const {
     cartItems,
@@ -84,14 +82,7 @@ const IndexContent = () => {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <HeroSection />
-        <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         <CategoriesSection />
-        <ProductGrid 
-          flowers={flowers}
-          searchTerm={searchTerm}
-          selectedCategory={selectedCategory}
-          onAddToCart={addToCart}
-        />
         <FeaturesSection />
       </main>
 

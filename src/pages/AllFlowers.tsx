@@ -3,6 +3,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import SearchBar from "@/components/SearchBar";
 import ProductGrid from "@/components/ProductGrid";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
@@ -35,11 +36,12 @@ const AllFlowersContent = () => {
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
           <Link to="/" className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-medium">
             <ArrowLeft className="w-4 h-4" />
             மீண்டும் பிரதான பக்கம் (Back to Home)
           </Link>
+          <LanguageSwitcher />
         </div>
         
         <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
