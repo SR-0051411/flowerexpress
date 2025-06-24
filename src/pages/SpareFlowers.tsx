@@ -6,6 +6,7 @@ import ProductGrid from "@/components/ProductGrid";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Cart from "@/components/Cart";
 import CheckoutForm from "@/components/CheckoutForm";
+import AdminPanel from "@/components/AdminPanel";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
@@ -20,6 +21,7 @@ const SpareFlowersContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
 
   const {
     cartItems,
@@ -47,7 +49,7 @@ const SpareFlowersContent = () => {
       <Header 
         cartCount={cartCount} 
         onCartClick={() => setIsCartOpen(true)}
-        onAdminPanelClick={() => {}}
+        onAdminPanelClick={() => setIsAdminPanelOpen(true)}
         onOrderManagementClick={() => {}}
         onOwnerLoginClick={() => {}}
         onSignOut={signOut}
@@ -89,6 +91,11 @@ const SpareFlowersContent = () => {
         items={cartItems}
         total={cartTotal}
         onOrderSuccess={handleOrderSuccess}
+      />
+
+      <AdminPanel
+        isOpen={isAdminPanelOpen}
+        onClose={() => setIsAdminPanelOpen(false)}
       />
     </div>
   );

@@ -42,12 +42,9 @@ export interface NewProduct {
 }
 
 export const categories = [
-  { value: 'flowers', label: 'Flowers' },
-  { value: 'maala', label: 'Flower Maala' },
-  { value: 'pooja', label: 'Pooja Items' },
-  { value: 'oils', label: 'Oils' },
-  { value: 'coconut', label: 'Coconut Products' },
-  { value: 'other', label: 'Other Items' }
+  { value: 'spare', label: 'Spare Flowers (Loose)' },
+  { value: 'tied', label: 'Tied Flower' },
+  { value: 'garland', label: 'Flower Garland (Maalai)' }
 ];
 
 export const initialNewProduct: NewProduct = {
@@ -57,7 +54,7 @@ export const initialNewProduct: NewProduct = {
   image: '',
   descKey: '',
   customDesc: '',
-  category: 'flowers',
+  category: 'spare',
   available: true,
   isCustom: true,
   tiedLength: 0,

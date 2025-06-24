@@ -1,14 +1,22 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFlowers } from "@/contexts/FlowersContext";
 import { toast } from "@/hooks/use-toast";
 import ProductForm from "./admin/ProductForm";
 import ProductCard from "./admin/ProductCard";
-import { Flower, AdminPanelProps } from "./admin/types";
+import { Flower } from "./admin/types";
 
-const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onDeleteFlower }: AdminPanelProps) => {
+interface AdminPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
   const { isOwner, logout } = useAuth();
+  const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingFlowers, setEditingFlowers] = useState<{[key: string]: Flower}>({});
 
@@ -28,7 +36,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
   const handleSaveChanges = (flowerId: string) => {
     const updatedFlower = editingFlowers[flowerId];
     if (updatedFlower) {
-      onUpdateFlower(flowerId, updatedFlower);
+      updateFlower(flowerId, updatedFlower);
       setEditingFlowers(prev => {
         const newState = { ...prev };
         delete newState[flowerId];
@@ -62,7 +70,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
               <ProductForm 
                 showAddForm={showAddForm}
                 onToggleForm={() => setShowAddForm(!showAddForm)}
-                onAddFlower={onAddFlower}
+                onAddFlower={addFlower}
               />
               <Button 
                 onClick={handleLogout}
@@ -86,7 +94,7 @@ const AdminPanel = ({ isOpen, onClose, flowers, onUpdateFlower, onAddFlower, onD
                 editingFlowers={editingFlowers}
                 onUpdateFlower={handleUpdateFlower}
                 onSaveChanges={handleSaveChanges}
-                onDeleteFlower={onDeleteFlower}
+                onDeleteFlower={deleteFlower}
               />
             ))}
           </div>
