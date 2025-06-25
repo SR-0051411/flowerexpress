@@ -41,14 +41,26 @@ const ProductCard = ({
   };
 
   const handleFlowerImageChange = (flower: Flower, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+    const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
+      onUpdateFlower(flower.id, 'imageFile', file);
       onUpdateFlower(flower.id, 'imageFileUrl', imageUrl);
+      
+      // Auto-save the changes immediately when image is uploaded
+      setTimeout(() => {
+        onSaveChanges(flower.id);
+      }, 100);
     }
   };
 
   const handleDeleteProduct = (flowerId: string) => {
+    // Clean up image URL if it exists
+    const imageUrl = getStringValue(getFlowerValue(flower, 'imageFileUrl'));
+    if (imageUrl && imageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(imageUrl);
+    }
+    
     onDeleteFlower(flowerId);
     toast({
       title: "Product Deleted",
@@ -60,9 +72,15 @@ const ProductCard = ({
     <div className="border rounded-lg p-4 bg-pink-50">
       <div className="flex items-center space-x-4 mb-4">
         {getStringValue(getFlowerValue(flower, 'imageFileUrl')) ? (
-          <img src={getStringValue(getFlowerValue(flower, 'imageFileUrl'))} alt={flower.customName || flower.nameKey} className="w-12 h-12 rounded object-cover border" />
+          <img 
+            src={getStringValue(getFlowerValue(flower, 'imageFileUrl'))} 
+            alt={flower.customName || flower.nameKey} 
+            className="w-16 h-16 rounded object-cover border-2 border-pink-200" 
+          />
         ) : (
-          <span className="text-4xl">{getStringValue(getFlowerValue(flower, 'image'))}</span>
+          <div className="w-16 h-16 bg-pink-100 rounded border-2 border-pink-200 flex items-center justify-center">
+            <span className="text-3xl">{getStringValue(getFlowerValue(flower, 'image'))}</span>
+          </div>
         )}
         <div className="flex-1">
           <h3 className="text-lg font-semibold">{getProductName(flower)}</h3>
@@ -74,28 +92,34 @@ const ProductCard = ({
             </div>
           )}
           {flower.isCustom && (
-            <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+            <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mt-1">
               Custom Product
             </span>
           )}
         </div>
         <div>
+          <Label htmlFor={`image-${flower.id}`} className="text-xs">Upload Fresh Image</Label>
           <Input
+            id={`image-${flower.id}`}
             type="file"
             accept="image/*"
             onChange={(e) => handleFlowerImageChange(flower, e)}
-            className="p-1 text-xs"
+            className="p-1 text-xs w-32"
           />
-          <span className="block text-xs text-gray-400">Change image</span>
+          <span className="block text-xs text-green-600 mt-1">📸 Daily Fresh Photos</span>
         </div>
         <div className="flex items-center space-x-2">
           <Label htmlFor={`available-${flower.id}`}>Available</Label>
           <Switch
             id={`available-${flower.id}`}
             checked={getFlowerValue(flower, 'available') !== false}
-            onCheckedChange={(checked) => 
-              onUpdateFlower(flower.id, 'available', checked)
-            }
+            onCheckedChange={(checked) => {
+              onUpdateFlower(flower.id, 'available', checked);
+              // Auto-save availability changes
+              setTimeout(() => {
+                onSaveChanges(flower.id);
+              }, 100);
+            }}
           />
         </div>
         <div className="flex space-x-2">
@@ -103,7 +127,7 @@ const ProductCard = ({
             <Button
               onClick={() => onSaveChanges(flower.id)}
               size="sm"
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              className="bg-green-500 hover:bg-green-600 text-white"
             >
               <Save className="w-4 h-4" />
               Save
@@ -132,6 +156,14 @@ const ProductCard = ({
             onChange={(e) => 
               onUpdateFlower(flower.id, 'price', parseInt(e.target.value) || 0)
             }
+            onBlur={() => {
+              // Auto-save price changes when user finishes editing
+              if (editingFlowers[flower.id]) {
+                setTimeout(() => {
+                  onSaveChanges(flower.id);
+                }, 500);
+              }
+            }}
             className="mt-1"
           />
         </div>
@@ -139,7 +171,13 @@ const ProductCard = ({
           <Label htmlFor={`category-${flower.id}`}>Category</Label>
           <Select
             value={getStringValue(getFlowerValue(flower, 'category'))}
-            onValueChange={(value) => onUpdateFlower(flower.id, 'category', value)}
+            onValueChange={(value) => {
+              onUpdateFlower(flower.id, 'category', value);
+              // Auto-save category changes
+              setTimeout(() => {
+                onSaveChanges(flower.id);
+              }, 100);
+            }}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
@@ -163,6 +201,14 @@ const ProductCard = ({
             onChange={(e) => 
               onUpdateFlower(flower.id, 'tiedLength', parseFloat(e.target.value) || undefined)
             }
+            onBlur={() => {
+              // Auto-save when user finishes editing
+              if (editingFlowers[flower.id]) {
+                setTimeout(() => {
+                  onSaveChanges(flower.id);
+                }, 500);
+              }
+            }}
             className="mt-1"
             placeholder="e.g., 4"
           />
@@ -176,6 +222,14 @@ const ProductCard = ({
             onChange={(e) => 
               onUpdateFlower(flower.id, 'ballQuantity', parseInt(e.target.value) || undefined)
             }
+            onBlur={() => {
+              // Auto-save when user finishes editing
+              if (editingFlowers[flower.id]) {
+                setTimeout(() => {
+                  onSaveChanges(flower.id);
+                }, 500);
+              }
+            }}
             className="mt-1"
             placeholder="e.g., 1"
           />
@@ -192,6 +246,14 @@ const ProductCard = ({
               onChange={(e) => 
                 onUpdateFlower(flower.id, 'customName', e.target.value)
               }
+              onBlur={() => {
+                // Auto-save when user finishes editing
+                if (editingFlowers[flower.id]) {
+                  setTimeout(() => {
+                    onSaveChanges(flower.id);
+                  }, 500);
+                }
+              }}
               className="mt-1"
             />
           </div>
@@ -206,6 +268,14 @@ const ProductCard = ({
               onChange={(e) => 
                 onUpdateFlower(flower.id, 'customDesc', e.target.value)
               }
+              onBlur={() => {
+                // Auto-save when user finishes editing
+                if (editingFlowers[flower.id]) {
+                  setTimeout(() => {
+                    onSaveChanges(flower.id);
+                  }, 1000);
+                }
+              }}
               className="mt-1"
             />
           </div>

@@ -51,7 +51,7 @@ export const initialNewProduct: NewProduct = {
   nameKey: '',
   customName: '',
   price: 0,
-  image: '',
+  image: '🌸',
   descKey: '',
   customDesc: '',
   category: 'spare',

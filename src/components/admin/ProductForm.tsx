@@ -20,7 +20,7 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
   const [newProduct, setNewProduct] = useState<NewProduct>(initialNewProduct);
 
   const handleNewImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+    const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setNewProduct(prev => ({
@@ -28,44 +28,65 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
         imageFile: file,
         imageFileUrl: imageUrl
       }));
+      
+      toast({
+        title: "Image Selected",
+        description: "Fresh product image ready to upload!",
+      });
     }
   };
 
   const handleAddProduct = () => {
-    if (!newProduct.customName || (!newProduct.image && !newProduct.imageFileUrl) || newProduct.price <= 0) {
+    if (!newProduct.customName || newProduct.price <= 0) {
       toast({
         title: "Validation Error",
-        description: "Please fill all required fields",
+        description: "Please provide product name and price",
         variant: "destructive",
       });
       return;
     }
 
-    onAddFlower({
-      nameKey: newProduct.nameKey,
+    // Ensure we have either an image file or emoji
+    if (!newProduct.imageFileUrl && !newProduct.image) {
+      toast({
+        title: "Image Required",
+        description: "Please upload an image or provide an emoji",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const flowerToAdd: Omit<Flower, 'id'> = {
+      nameKey: newProduct.nameKey || 'custom',
       customName: newProduct.customName,
       price: newProduct.price,
-      image: newProduct.image,
+      image: newProduct.image || '🌸',
       imageFileUrl: newProduct.imageFileUrl,
-      descKey: newProduct.descKey,
+      imageFile: newProduct.imageFile,
+      descKey: newProduct.descKey || 'custom',
       customDesc: newProduct.customDesc,
       category: newProduct.category,
       available: newProduct.available,
       isCustom: true,
       tiedLength: newProduct.tiedLength > 0 ? newProduct.tiedLength : undefined,
       ballQuantity: newProduct.ballQuantity > 0 ? newProduct.ballQuantity : undefined
-    });
+    };
 
+    onAddFlower(flowerToAdd);
+
+    // Clean up the object URL after adding
     if (newProduct.imageFileUrl) {
-      URL.revokeObjectURL(newProduct.imageFileUrl);
+      setTimeout(() => {
+        URL.revokeObjectURL(newProduct.imageFileUrl);
+      }, 1000);
     }
 
     setNewProduct(initialNewProduct);
     onToggleForm();
     
     toast({
-      title: "Product Added",
-      description: "New product has been added successfully",
+      title: "Fresh Product Added! 🌸",
+      description: "New product is now available for customers",
     });
   };
 
@@ -76,14 +97,14 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
         className="bg-green-500 hover:bg-green-600 text-white"
       >
         <Plus className="w-4 h-4 mr-2" />
-        Add New Product
+        Add Fresh Product
       </Button>
     );
   }
 
   return (
     <div className="border-2 border-dashed border-green-300 rounded-lg p-6 bg-green-50">
-      <h3 className="text-lg font-semibold mb-4 text-green-800">Add New Product</h3>
+      <h3 className="text-lg font-semibold mb-4 text-green-800">📸 Add Fresh Daily Product</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="new-name">Product Name *</Label>
@@ -91,7 +112,7 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
             id="new-name"
             value={newProduct.customName}
             onChange={(e) => setNewProduct(prev => ({...prev, customName: e.target.value}))}
-            placeholder="Enter product name"
+            placeholder="Enter fresh product name"
             className="mt-1"
           />
         </div>
@@ -120,38 +141,41 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
             type="number"
             value={newProduct.price}
             onChange={(e) => setNewProduct(prev => ({...prev, price: parseInt(e.target.value) || 0}))}
-            placeholder="Enter price"
+            placeholder="Enter today's price"
             className="mt-1"
           />
         </div>
         <div>
-          <Label htmlFor="new-image-file">Product Image (optional, real photo)</Label>
+          <Label htmlFor="new-image-file" className="text-green-700 font-semibold">📸 Fresh Product Photo *</Label>
           <Input
             id="new-image-file"
             type="file"
             accept="image/*"
             onChange={handleNewImageFileChange}
-            className="mt-1"
+            className="mt-1 border-green-300"
           />
           {newProduct.imageFileUrl && (
-            <img
-              src={newProduct.imageFileUrl}
-              alt="Preview"
-              className="w-20 h-20 rounded object-cover mt-2 border"
-            />
+            <div className="mt-2">
+              <img
+                src={newProduct.imageFileUrl}
+                alt="Fresh product preview"
+                className="w-24 h-24 rounded object-cover border-2 border-green-300"
+              />
+              <span className="block text-xs text-green-600 mt-1">✅ Fresh image ready!</span>
+            </div>
           )}
-          <span className="block text-xs text-gray-400 mt-1">You can use real images for product photos. If no image uploaded, emoji/icon will be shown.</span>
+          <span className="block text-xs text-green-600 mt-1">Upload real photos of your fresh products daily</span>
         </div>
         <div>
-          <Label htmlFor="new-image">Emoji/Icon *</Label>
+          <Label htmlFor="new-image">Backup Emoji/Icon</Label>
           <Input
             id="new-image"
             value={newProduct.image}
             onChange={(e) => setNewProduct(prev => ({...prev, image: e.target.value}))}
-            placeholder="🥥 (Enter emoji or icon)"
+            placeholder="🌸 (fallback if no photo)"
             className="mt-1"
           />
-          <span className="block text-xs text-gray-400 mt-1">If you don't upload an image, the icon/emoji will be used.</span>
+          <span className="block text-xs text-gray-400 mt-1">Used only if no photo is uploaded</span>
         </div>
         <div>
           <Label htmlFor="new-tied-length">Tied Length (ft)</Label>
@@ -182,7 +206,7 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
             id="new-desc"
             value={newProduct.customDesc}
             onChange={(e) => setNewProduct(prev => ({...prev, customDesc: e.target.value}))}
-            placeholder="Enter product description"
+            placeholder="Describe the freshness and quality of your product"
             className="mt-1"
           />
         </div>
@@ -191,12 +215,12 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
             checked={newProduct.available}
             onCheckedChange={(checked) => setNewProduct(prev => ({...prev, available: checked}))}
           />
-          <Label>Available</Label>
+          <Label className="text-green-700">Available Today</Label>
         </div>
       </div>
       <div className="flex space-x-2 mt-4">
         <Button onClick={handleAddProduct} className="bg-green-500 hover:bg-green-600">
-          Add Product
+          🌸 Add Fresh Product
         </Button>
         <Button onClick={onToggleForm} variant="outline">
           Cancel
