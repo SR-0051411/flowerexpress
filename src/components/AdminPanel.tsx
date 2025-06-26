@@ -16,13 +16,11 @@ interface AdminPanelProps {
 }
 
 const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
-  const { isOwner, logout } = useAuth();
+  const { logout } = useAuth();
   const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [editingFlowers, setEditingFlowers] = useState<{[key: string]: Flower}>({});
-
-  if (!isOwner) return null;
 
   const handleUpdateFlower = (flowerId: string, field: keyof Flower, value: any) => {
     setEditingFlowers(prev => ({
