@@ -119,8 +119,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const login = (password: string) => {
-    // Simple owner login check - in production you'd want this more secure
-    if (password === 'flowerexpress2024') {
+    // Get current owner password from localStorage, fallback to default
+    const currentOwnerPassword = localStorage.getItem('ownerPassword') || 'flowerexpress2024';
+    
+    if (password === currentOwnerPassword) {
       setIsOwnerLoggedIn(true);
       toast({
         title: "Admin Access Granted",

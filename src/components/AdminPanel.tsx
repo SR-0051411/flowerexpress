@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,9 @@ import { useFlowers } from "@/contexts/FlowersContext";
 import { toast } from "@/hooks/use-toast";
 import ProductForm from "./admin/ProductForm";
 import ProductCard from "./admin/ProductCard";
+import PasswordChangeForm from "./admin/PasswordChangeForm";
 import { Flower } from "./admin/types";
+import { Settings, Lock } from "lucide-react";
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
   const { isOwner, logout } = useAuth();
   const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [editingFlowers, setEditingFlowers] = useState<{[key: string]: Flower}>({});
 
   if (!isOwner) return null;
@@ -58,6 +60,10 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
     });
   };
 
+  const handlePasswordChange = (newPassword: string) => {
+    console.log('Owner password updated successfully');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -67,6 +73,14 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
               Owner Dashboard - Product Management
             </DialogTitle>
             <div className="flex space-x-2">
+              <Button 
+                onClick={() => setShowPasswordChange(true)}
+                variant="outline"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <Lock className="w-4 h-4 mr-2" />
+                Change Password
+              </Button>
               <ProductForm 
                 showAddForm={showAddForm}
                 onToggleForm={() => setShowAddForm(!showAddForm)}
@@ -99,6 +113,12 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
             ))}
           </div>
         </div>
+
+        <PasswordChangeForm
+          isOpen={showPasswordChange}
+          onClose={() => setShowPasswordChange(false)}
+          onPasswordChange={handlePasswordChange}
+        />
       </DialogContent>
     </Dialog>
   );
