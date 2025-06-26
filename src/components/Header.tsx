@@ -69,8 +69,8 @@ const Header = ({
                 </Button>
               </div>
             ) : (
-              // Only show Owner Login button if no user is signed in
-              !user && (
+              // Only show Owner Login button if no user is signed in AND not owner
+              !user && !isOwner && (
                 <Button 
                   onClick={onOwnerLoginClick}
                   className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2"
