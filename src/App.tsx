@@ -13,6 +13,7 @@ import AllFlowers from "./pages/AllFlowers";
 import SpareFlowers from "./pages/SpareFlowers";
 import TiedFlowers from "./pages/TiedFlowers";
 import FlowerGarlands from "./pages/FlowerGarlands";
+import SeasonalFlowers from "./pages/SeasonalFlowers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,11 @@ const App = () => (
               <Route path="/flower-garlands" element={
                 <ProtectedRoute>
                   <FlowerGarlands />
+                </ProtectedRoute>
+              } />
+              <Route path="/seasonal-flowers" element={
+                <ProtectedRoute>
+                  <SeasonalFlowers />
                 </ProtectedRoute>
               } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
