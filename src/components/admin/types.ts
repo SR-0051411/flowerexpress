@@ -14,6 +14,7 @@ export interface Flower {
   ballQuantity?: number;
   imageFile?: File | null;
   imageFileUrl?: string;
+  additionalImages?: { file?: File | null; url?: string }[];
 }
 
 export interface AdminPanelProps {
@@ -39,6 +40,7 @@ export interface NewProduct {
   ballQuantity: number;
   imageFile: File | null;
   imageFileUrl: string;
+  additionalImages: { file?: File | null; url?: string }[];
 }
 
 export const categories = [
@@ -60,5 +62,6 @@ export const initialNewProduct: NewProduct = {
   tiedLength: 0,
   ballQuantity: 0,
   imageFile: null,
-  imageFileUrl: ''
+  imageFileUrl: '',
+  additionalImages: []
 };

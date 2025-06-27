@@ -30,9 +30,52 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
       }));
       
       toast({
-        title: "Image Selected",
-        description: "Fresh product image ready to upload!",
+        title: "Main Image Selected",
+        description: "Primary product image ready to upload!",
       });
+    }
+  };
+
+  const handleAdditionalImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setNewProduct(prev => {
+        const newAdditionalImages = [...(prev.additionalImages || [])];
+        newAdditionalImages[index] = { file, url: imageUrl };
+        return {
+          ...prev,
+          additionalImages: newAdditionalImages
+        };
+      });
+      
+      toast({
+        title: `Additional Image ${index + 1} Selected`,
+        description: "Extra product image ready to upload!",
+      });
+    }
+  };
+
+  const removeAdditionalImage = (index: number) => {
+    setNewProduct(prev => {
+      const newAdditionalImages = [...(prev.additionalImages || [])];
+      if (newAdditionalImages[index]?.url) {
+        URL.revokeObjectURL(newAdditionalImages[index].url!);
+      }
+      newAdditionalImages.splice(index, 1);
+      return {
+        ...prev,
+        additionalImages: newAdditionalImages
+      };
+    });
+  };
+
+  const addMoreImageSlots = () => {
+    if ((newProduct.additionalImages?.length || 0) < 3) {
+      setNewProduct(prev => ({
+        ...prev,
+        additionalImages: [...(prev.additionalImages || []), { file: null, url: '' }]
+      }));
     }
   };
 
@@ -50,7 +93,7 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
     if (!newProduct.imageFileUrl && !newProduct.image) {
       toast({
         title: "Image Required",
-        description: "Please upload an image or provide an emoji",
+        description: "Please upload a main image or provide an emoji",
         variant: "destructive",
       });
       return;
@@ -63,6 +106,7 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
       image: newProduct.image || '🌸',
       imageFileUrl: newProduct.imageFileUrl,
       imageFile: newProduct.imageFile,
+      additionalImages: newProduct.additionalImages?.filter(img => img.url) || [],
       descKey: newProduct.descKey || 'custom',
       customDesc: newProduct.customDesc,
       category: newProduct.category,
@@ -74,19 +118,26 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
 
     onAddFlower(flowerToAdd);
 
-    // Clean up the object URL after adding
+    // Clean up the object URLs after adding
     if (newProduct.imageFileUrl) {
       setTimeout(() => {
         URL.revokeObjectURL(newProduct.imageFileUrl);
       }, 1000);
     }
+    newProduct.additionalImages?.forEach(img => {
+      if (img.url) {
+        setTimeout(() => {
+          URL.revokeObjectURL(img.url!);
+        }, 1000);
+      }
+    });
 
     setNewProduct(initialNewProduct);
     onToggleForm();
     
     toast({
       title: "Fresh Product Added! 🌸",
-      description: "New product is now available for customers",
+      description: "New product with images is now available for customers",
     });
   };
 
@@ -146,27 +197,6 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
           />
         </div>
         <div>
-          <Label htmlFor="new-image-file" className="text-green-700 font-semibold">📸 Fresh Product Photo *</Label>
-          <Input
-            id="new-image-file"
-            type="file"
-            accept="image/*"
-            onChange={handleNewImageFileChange}
-            className="mt-1 border-green-300"
-          />
-          {newProduct.imageFileUrl && (
-            <div className="mt-2">
-              <img
-                src={newProduct.imageFileUrl}
-                alt="Fresh product preview"
-                className="w-24 h-24 rounded object-cover border-2 border-green-300"
-              />
-              <span className="block text-xs text-green-600 mt-1">✅ Fresh image ready!</span>
-            </div>
-          )}
-          <span className="block text-xs text-green-600 mt-1">Upload real photos of your fresh products daily</span>
-        </div>
-        <div>
           <Label htmlFor="new-image">Backup Emoji/Icon</Label>
           <Input
             id="new-image"
@@ -175,7 +205,6 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
             placeholder="🌸 (fallback if no photo)"
             className="mt-1"
           />
-          <span className="block text-xs text-gray-400 mt-1">Used only if no photo is uploaded</span>
         </div>
         <div>
           <Label htmlFor="new-tied-length">Tied Length (ft)</Label>
@@ -218,7 +247,95 @@ const ProductForm = ({ showAddForm, onToggleForm, onAddFlower }: ProductFormProp
           <Label className="text-green-700">Available Today</Label>
         </div>
       </div>
-      <div className="flex space-x-2 mt-4">
+
+      {/* Main Image Section */}
+      <div className="mt-6 border-t pt-6">
+        <h4 className="text-md font-semibold text-green-800 mb-4">📸 Product Images</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <Label htmlFor="new-image-file" className="text-green-700 font-semibold">Main Product Photo *</Label>
+            <Input
+              id="new-image-file"
+              type="file"
+              accept="image/*"
+              onChange={handleNewImageFileChange}
+              className="mt-1 border-green-300"
+            />
+            {newProduct.imageFileUrl && (
+              <div className="mt-3">
+                <img
+                  src={newProduct.imageFileUrl}
+                  alt="Main product preview"
+                  className="w-32 h-32 rounded object-cover border-2 border-green-300"
+                />
+                <span className="block text-xs text-green-600 mt-1">✅ Main image ready!</span>
+              </div>
+            )}
+          </div>
+
+          {/* Additional Images */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-green-700 font-semibold">Additional Photos</Label>
+              {(newProduct.additionalImages?.length || 0) < 3 && (
+                <Button
+                  type="button"
+                  onClick={addMoreImageSlots}
+                  variant="outline"
+                  size="sm"
+                  className="text-green-600 border-green-300"
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Add Image
+                </Button>
+              )}
+            </div>
+            <div className="space-y-3">
+              {newProduct.additionalImages?.map((img, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleAdditionalImageChange(index, e)}
+                    className="flex-1 border-green-300 text-xs"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => removeAdditionalImage(index)}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 border-red-300"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+            
+            {/* Additional Images Preview */}
+            {newProduct.additionalImages?.some(img => img.url) && (
+              <div className="mt-3 flex gap-2 flex-wrap">
+                {newProduct.additionalImages.map((img, index) => (
+                  img.url && (
+                    <div key={index} className="relative">
+                      <img
+                        src={img.url}
+                        alt={`Additional preview ${index + 1}`}
+                        className="w-20 h-20 rounded object-cover border border-green-300"
+                      />
+                      <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        {index + 1}
+                      </span>
+                    </div>
+                  )
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex space-x-2 mt-6">
         <Button onClick={handleAddProduct} className="bg-green-500 hover:bg-green-600">
           🌸 Add Fresh Product
         </Button>
