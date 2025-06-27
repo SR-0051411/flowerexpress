@@ -68,11 +68,11 @@ const FlowerCard = ({
   imageFileUrl,
   additionalImages = [],
 }: FlowerCardProps) => {
-  // Combine main image and additional images
+  // Combine main image and additional images, filtering out empty URLs
   const allImages = [
     imageFileUrl || image,
-    ...(additionalImages?.filter(img => img.url).map(img => img.url) || [])
-  ];
+    ...(additionalImages?.filter(img => img.url && img.url.trim() !== '').map(img => img.url) || [])
+  ].filter(Boolean); // Remove any undefined/null/empty values
 
   const showCarousel = allImages.length > 1;
 
@@ -81,7 +81,7 @@ const FlowerCard = ({
       <div className="aspect-square bg-gradient-to-br from-pink-50 to-rose-50 flex items-center justify-center relative group">
         {showCarousel ? (
           <div className="relative w-full h-full">
-            <Carousel className="w-full h-full">
+            <Carousel className="w-full h-full" opts={{ loop: true }}>
               <CarouselContent>
                 {allImages.map((imgSrc, index) => (
                   <CarouselItem key={index}>
@@ -91,6 +91,10 @@ const FlowerCard = ({
                           src={imgSrc} 
                           alt={`${nameTa} - Image ${index + 1}`} 
                           className="object-cover w-full h-full" 
+                          onError={(e) => {
+                            console.log(`Failed to load image: ${imgSrc}`);
+                            e.currentTarget.style.display = 'none';
+                          }}
                         />
                       ) : (
                         <span className="text-6xl">{imgSrc}</span>
@@ -101,11 +105,11 @@ const FlowerCard = ({
               </CarouselContent>
               
               {/* Enhanced Navigation Buttons */}
-              <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-              <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
+              <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
               
               {/* Image Counter Dots */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                 {allImages.map((_, index) => (
                   <div 
                     key={index}
@@ -115,7 +119,7 @@ const FlowerCard = ({
               </div>
               
               {/* Multiple Images Indicator */}
-              <div className="absolute top-2 right-2 bg-pink-600/80 text-white text-xs px-2 py-1 rounded-full font-medium">
+              <div className="absolute top-2 right-2 bg-pink-600/80 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
                 📸 {allImages.length}
               </div>
             </Carousel>
@@ -128,9 +132,13 @@ const FlowerCard = ({
                 src={allImages[0]} 
                 alt={nameTa} 
                 className="object-cover w-full h-full" 
+                onError={(e) => {
+                  console.log(`Failed to load single image: ${allImages[0]}`);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             ) : (
-              <span className="text-6xl">{allImages[0]}</span>
+              <span className="text-6xl">{allImages[0] || image}</span>
             )}
           </>
         )}
