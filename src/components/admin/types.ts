@@ -46,7 +46,8 @@ export interface NewProduct {
 export const categories = [
   { value: 'spare', label: 'Spare Flowers (Loose)' },
   { value: 'tied', label: 'Tied Flower' },
-  { value: 'garland', label: 'Flower Garland (Maalai)' }
+  { value: 'garland', label: 'Flower Garland (Maalai)' },
+  { value: 'seasonal', label: 'Seasonal Flowers' }
 ];
 
 export const initialNewProduct: NewProduct = {

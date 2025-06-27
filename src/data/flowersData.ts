@@ -1,4 +1,3 @@
-
 export interface Flower {
   id: string;
   nameKey: string;
@@ -13,6 +12,7 @@ export interface Flower {
   tiedLength?: number;
   ballQuantity?: number;
   imageFileUrl?: string;
+  additionalImages?: { file?: File | null; url?: string }[];
 }
 
 // Updated flower data with Tamil flowers
@@ -192,13 +192,50 @@ export const initialFlowers: Flower[] = [
     customDesc: "பல்வேறு பூக்கள் கலவை மாலை - Mixed flower garland",
     tiedLength: 8,
     ballQuantity: 5
+  },
+  {
+    id: "15",
+    nameKey: "lotus",
+    price: 300,
+    image: "🪷",
+    descKey: "lotusDesc",
+    category: "seasonal",
+    available: true,
+    isCustom: true,
+    customName: "தாமரை (Lotus)",
+    customDesc: "புனித தாமரை பூக்கள் - Sacred lotus flowers"
+  },
+  {
+    id: "16",
+    nameKey: "hibiscus",
+    price: 80,
+    image: "🌺",
+    descKey: "hibiscusDesc",
+    category: "seasonal",
+    available: true,
+    isCustom: true,
+    customName: "செம்பருத்தி (Hibiscus)",
+    customDesc: "பருவகால செம்பருத்தி பூக்கள் - Seasonal hibiscus flowers"
+  },
+  {
+    id: "17",
+    nameKey: "sunflower",
+    price: 150,
+    image: "🌻",
+    descKey: "sunflowerDesc",
+    category: "seasonal",
+    available: true,
+    isCustom: true,
+    customName: "சூரியகாந்தி (Sunflower)",
+    customDesc: "பருவகால சூரியகாந்தி பூக்கள் - Seasonal sunflower"
   }
 ];
 
-// Updated categories - only 4 as requested
+// Updated categories - now 5 categories including seasonal
 export const categories = [
   { id: "all", titleKey: "allFlowers", image: "🌺" },
   { id: "spare", titleKey: "spareFlowers", image: "🌼" },
   { id: "tied", titleKey: "tiedFlower", image: "🌿" },
-  { id: "garland", titleKey: "flowerGarland", image: "🌸" }
+  { id: "garland", titleKey: "flowerGarland", image: "🌸" },
+  { id: "seasonal", titleKey: "seasonalFlowers", image: "🌸" }
 ];
