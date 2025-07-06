@@ -1,8 +1,7 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -81,19 +80,30 @@ const FlowerCard = ({
 
   const showCarousel = allImages.length > 1;
 
-  const onApiChange = useCallback((api: CarouselApi) => {
-    if (!api) return;
+  // Set up the carousel API and event listeners
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
 
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
 
-    api.on('select', () => {
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, []);
+    };
+
+    api.on("select", onSelect);
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
 
   const scrollTo = useCallback((index: number) => {
-    api?.scrollTo(index);
+    if (api) {
+      api.scrollTo(index);
+    }
   }, [api]);
 
   return (
@@ -104,7 +114,7 @@ const FlowerCard = ({
             <Carousel 
               className="w-full h-full" 
               opts={{ loop: true, align: "start" }}
-              setApi={onApiChange}
+              setApi={setApi}
             >
               <CarouselContent>
                 {allImages.map((imgSrc, index) => (
@@ -135,12 +145,12 @@ const FlowerCard = ({
               {/* Multiple Images Indicator */}
               <div className="absolute top-2 right-2 bg-pink-600/90 text-white text-xs px-2 py-1 rounded-full font-medium z-10 flex items-center gap-1">
                 <span>📸</span>
-                <span>{current}/{allImages.length}</span>
+                <span>{current}/{count}</span>
               </div>
               
               {/* Clickable Image Counter Dots */}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                {allImages.map((_, index) => (
+                {Array.from({ length: count }).map((_, index) => (
                   <button
                     key={index}
                     onClick={() => scrollTo(index)}
