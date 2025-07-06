@@ -23,7 +23,21 @@ const config: CapacitorConfig = {
     Keyboard: {
       resize: 'body',
       style: 'dark'
+    },
+    App: {
+      launchUrl: 'https://ce940b1d-3075-43ef-b4c3-9bce0537c076.lovableproject.com?forceHideBadge=true'
     }
+  },
+  // Android specific configuration
+  android: {
+    allowMixedContent: true,
+    captureInput: true,
+    webContentsDebuggingEnabled: false
+  },
+  // iOS specific configuration
+  ios: {
+    contentInset: 'automatic',
+    scrollEnabled: true
   }
 };
 
