@@ -2,13 +2,14 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 
 interface FlowerCardProps {
@@ -68,6 +69,10 @@ const FlowerCard = ({
   imageFileUrl,
   additionalImages = [],
 }: FlowerCardProps) => {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+
   // Combine main image and additional images, filtering out empty URLs
   const allImages = [
     imageFileUrl || image,
@@ -76,12 +81,31 @@ const FlowerCard = ({
 
   const showCarousel = allImages.length > 1;
 
+  const onApiChange = useCallback((api: CarouselApi) => {
+    if (!api) return;
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on('select', () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, []);
+
+  const scrollTo = useCallback((index: number) => {
+    api?.scrollTo(index);
+  }, [api]);
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border-2 border-pink-100">
       <div className="aspect-square bg-gradient-to-br from-pink-50 to-rose-50 flex items-center justify-center relative group">
         {showCarousel ? (
           <div className="relative w-full h-full">
-            <Carousel className="w-full h-full" opts={{ loop: true }}>
+            <Carousel 
+              className="w-full h-full" 
+              opts={{ loop: true, align: "start" }}
+              setApi={onApiChange}
+            >
               <CarouselContent>
                 {allImages.map((imgSrc, index) => (
                   <CarouselItem key={index}>
@@ -104,23 +128,30 @@ const FlowerCard = ({
                 ))}
               </CarouselContent>
               
-              {/* Enhanced Navigation Buttons */}
-              <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
-              <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
-              
-              {/* Image Counter Dots */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                {allImages.map((_, index) => (
-                  <div 
-                    key={index}
-                    className="w-2 h-2 rounded-full bg-white/70 border border-pink-300"
-                  />
-                ))}
-              </div>
+              {/* Enhanced Navigation Buttons - Always visible on hover */}
+              <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 h-10 w-10" />
+              <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 h-10 w-10" />
               
               {/* Multiple Images Indicator */}
-              <div className="absolute top-2 right-2 bg-pink-600/80 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
-                📸 {allImages.length}
+              <div className="absolute top-2 right-2 bg-pink-600/90 text-white text-xs px-2 py-1 rounded-full font-medium z-10 flex items-center gap-1">
+                <span>📸</span>
+                <span>{current}/{allImages.length}</span>
+              </div>
+              
+              {/* Clickable Image Counter Dots */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                {allImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => scrollTo(index)}
+                    className={`w-2.5 h-2.5 rounded-full border transition-all duration-200 hover:scale-110 ${
+                      index === current - 1
+                        ? 'bg-pink-500 border-pink-500 shadow-md'
+                        : 'bg-white/70 border-pink-300 hover:bg-white hover:border-pink-400'
+                    }`}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
               </div>
             </Carousel>
           </div>
