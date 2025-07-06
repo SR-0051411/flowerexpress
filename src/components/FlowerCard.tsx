@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -87,22 +88,34 @@ const FlowerCard = ({
     }
 
     setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
+    setCurrent(api.selectedScrollSnap());
 
     const onSelect = () => {
-      setCurrent(api.selectedScrollSnap() + 1);
+      setCurrent(api.selectedScrollSnap());
     };
 
     api.on("select", onSelect);
 
     return () => {
-      api.off("select", onSelect);
+      api?.off("select", onSelect);
     };
   }, [api]);
 
   const scrollTo = useCallback((index: number) => {
     if (api) {
       api.scrollTo(index);
+    }
+  }, [api]);
+
+  const scrollPrev = useCallback(() => {
+    if (api) {
+      api.scrollPrev();
+    }
+  }, [api]);
+
+  const scrollNext = useCallback(() => {
+    if (api) {
+      api.scrollNext();
     }
   }, [api]);
 
@@ -113,13 +126,18 @@ const FlowerCard = ({
           <div className="relative w-full h-full">
             <Carousel 
               className="w-full h-full" 
-              opts={{ loop: true, align: "start" }}
+              opts={{ 
+                loop: true, 
+                align: "start",
+                skipSnaps: false,
+                dragFree: false 
+              }}
               setApi={setApi}
             >
-              <CarouselContent>
+              <CarouselContent className="-ml-0">
                 {allImages.map((imgSrc, index) => (
-                  <CarouselItem key={index}>
-                    <div className="w-full h-full flex items-center justify-center">
+                  <CarouselItem key={index} className="pl-0">
+                    <div className="w-full h-full flex items-center justify-center aspect-square">
                       {imgSrc?.startsWith('http') || imgSrc?.startsWith('blob:') ? (
                         <img 
                           src={imgSrc} 
@@ -138,14 +156,29 @@ const FlowerCard = ({
                 ))}
               </CarouselContent>
               
-              {/* Enhanced Navigation Buttons - Always visible on hover */}
-              <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 h-10 w-10" />
-              <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 h-10 w-10" />
+              {/* Custom Navigation Buttons */}
+              <button
+                onClick={scrollPrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white border border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 h-10 w-10 rounded-full flex items-center justify-center"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <button
+                onClick={scrollNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white border border-pink-200 text-pink-600 hover:text-pink-700 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 h-10 w-10 rounded-full flex items-center justify-center"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
               
               {/* Multiple Images Indicator */}
               <div className="absolute top-2 right-2 bg-pink-600/90 text-white text-xs px-2 py-1 rounded-full font-medium z-10 flex items-center gap-1">
                 <span>📸</span>
-                <span>{current}/{count}</span>
+                <span>{current + 1}/{count}</span>
               </div>
               
               {/* Clickable Image Counter Dots */}
@@ -155,7 +188,7 @@ const FlowerCard = ({
                     key={index}
                     onClick={() => scrollTo(index)}
                     className={`w-2.5 h-2.5 rounded-full border transition-all duration-200 hover:scale-110 ${
-                      index === current - 1
+                      index === current
                         ? 'bg-pink-500 border-pink-500 shadow-md'
                         : 'bg-white/70 border-pink-300 hover:bg-white hover:border-pink-400'
                     }`}
