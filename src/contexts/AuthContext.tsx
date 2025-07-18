@@ -65,6 +65,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
+      setLoading(true);
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
@@ -80,34 +81,65 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (error) {
         console.error('Signup error:', error);
+        
+        // Handle specific error types
+        if (error.message.includes('Email rate limit exceeded')) {
+          return { success: false, message: 'Too many signup attempts. Please wait a few minutes and try again.' };
+        }
+        if (error.message.includes('User already registered')) {
+          return { success: false, message: 'An account with this email already exists. Please try signing in instead.' };
+        }
+        if (error.message.includes('Password should be at least')) {
+          return { success: false, message: 'Password must be at least 6 characters long.' };
+        }
+        
         return { success: false, message: error.message };
       }
 
       if (data.user && !data.session) {
-        return { success: true, message: 'Please check your email to confirm your account before signing in.' };
+        return { success: true, message: 'Account created successfully! You can now sign in.' };
       }
 
       return { success: true, message: 'Account created successfully!' };
     } catch (error: any) {
       console.error('Signup exception:', error);
-      return { success: false, message: error.message || 'An error occurred during sign up.' };
+      return { success: false, message: error.message || 'Network error occurred. Please check your internet connection and try again.' };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Signin error:', error);
+        
+        // Handle specific error types
+        if (error.message.includes('Invalid login credentials')) {
+          return { success: false, message: 'Invalid email or password. Please check your credentials and try again.' };
+        }
+        if (error.message.includes('Email not confirmed')) {
+          return { success: false, message: 'Please check your email and confirm your account before signing in.' };
+        }
+        if (error.message.includes('Too many requests')) {
+          return { success: false, message: 'Too many login attempts. Please wait a few minutes and try again.' };
+        }
+        
         return { success: false, message: error.message };
       }
 
       return { success: true, message: 'Successfully signed in!' };
     } catch (error: any) {
-      return { success: false, message: error.message || 'An error occurred during sign in.' };
+      console.error('Signin exception:', error);
+      return { success: false, message: error.message || 'Network error occurred. Please check your internet connection and try again.' };
+    } finally {
+      setLoading(false);
     }
   };
 
