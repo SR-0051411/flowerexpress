@@ -40,8 +40,12 @@ const Header = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-400 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">🌸</span>
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-pink-200">
+              <img 
+                src="/lovable-uploads/8f5d8f7a-5451-4cb1-b6ed-30aa39799b28.png" 
+                alt="FlowerExpress Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{t('appName')}</h1>
