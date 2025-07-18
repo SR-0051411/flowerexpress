@@ -133,21 +133,27 @@ const Auth = () => {
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className={`grid w-full ${!user ? 'grid-cols-3' : 'grid-cols-2'} mb-6`}>
-                <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
-                  Sign In
+                <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white flex flex-col gap-1 py-3 px-4">
+                  <span className="font-medium">Login</span>
+                  <span className="text-xs opacity-80">Already have an account?</span>
                 </TabsTrigger>
-                <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
-                  Sign Up
+                <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white flex flex-col gap-1 py-3 px-4">
+                  <span className="font-medium">Create Account</span>
+                  <span className="text-xs opacity-80">New to FlowerExpress?</span>
                 </TabsTrigger>
                 {/* Only show Owner tab if no user is signed in */}
                 {!user && (
-                  <TabsTrigger value="owner" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-                    Owner
+                  <TabsTrigger value="owner" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white flex flex-col gap-1 py-3 px-4">
+                    <span className="font-medium">Admin</span>
+                    <span className="text-xs opacity-80">Store Owner</span>
                   </TabsTrigger>
                 )}
               </TabsList>
 
               <TabsContent value="signin" className="space-y-6">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-gray-600">Welcome back! Enter your credentials to access your account.</p>
+                </div>
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signin-email" className="text-gray-700 font-medium">Email</Label>
@@ -190,6 +196,9 @@ const Auth = () => {
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-6">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-gray-600">Create your FlowerExpress account to start ordering beautiful flowers.</p>
+                </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name" className="text-gray-700 font-medium">Full Name</Label>
