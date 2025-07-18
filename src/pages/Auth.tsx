@@ -95,8 +95,12 @@ const Auth = () => {
         {/* Logo and Brand */}
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-400 rounded-full flex items-center justify-center shadow-lg">
-              <Flower2 className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 rounded-full border-3 border-pink-200 overflow-hidden shadow-lg">
+              <img 
+                src="/lovable-uploads/8f5d8f7a-5451-4cb1-b6ed-30aa39799b28.png" 
+                alt="FlowerExpress Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
           <div>
