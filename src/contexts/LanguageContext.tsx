@@ -18,7 +18,7 @@ const translations = {
     // Hero Section
     heroTitle: 'Fresh Flowers',
     heroTitleHighlight: 'Delivered Tomorrow',
-    heroSubtitle: 'Order Today, Get Fresh Flowers Tomorrow - First-Ever Fresh Flower Delivery Service',
+    heroSubtitle: 'Order today, Get the fresh flowers delivered to your door-step by tomorrow - First-Ever Fresh Flower Delivery Service',
     
     // Categories
     shopByCategory: 'Shop by Category',

@@ -133,19 +133,16 @@ const Auth = () => {
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className={`grid w-full ${!user ? 'grid-cols-3' : 'grid-cols-2'} mb-6`}>
-                <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white flex flex-col gap-1 py-3 px-4">
-                  <span className="font-medium">Login</span>
-                  <span className="text-xs opacity-80">Already have an account?</span>
+                <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+                  Login
                 </TabsTrigger>
-                <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white flex flex-col gap-1 py-3 px-4">
-                  <span className="font-medium">Create Account</span>
-                  <span className="text-xs opacity-80">New to FlowerExpress?</span>
+                <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+                  Create Account
                 </TabsTrigger>
                 {/* Only show Owner tab if no user is signed in */}
                 {!user && (
-                  <TabsTrigger value="owner" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white flex flex-col gap-1 py-3 px-4">
-                    <span className="font-medium">Admin</span>
-                    <span className="text-xs opacity-80">Store Owner</span>
+                  <TabsTrigger value="owner" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
+                    Admin
                   </TabsTrigger>
                 )}
               </TabsList>
