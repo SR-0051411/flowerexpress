@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Flower2, Mail, Lock, User, Shield, Heart, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +25,34 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signUp, signIn, login, user } = useAuth();
   const navigate = useNavigate();
+
+  // Test function to check Supabase connection
+  const testConnection = async () => {
+    console.log('Testing Supabase connection...');
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      console.log('Session test result:', { data, error });
+      if (error) {
+        toast({
+          title: "Connection Test Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Connection Test Successful",
+          description: "Supabase is connected properly",
+        });
+      }
+    } catch (err) {
+      console.error('Connection test error:', err);
+      toast({
+        title: "Connection Test Error",
+        description: String(err),
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -294,6 +323,17 @@ const Auth = () => {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Debug Section */}
+        <div className="text-center">
+          <Button 
+            onClick={testConnection}
+            variant="outline"
+            className="text-xs px-3 py-1"
+          >
+            Test Connection
+          </Button>
+        </div>
 
         {/* Terms and Privacy */}
         <div className="text-center text-xs text-gray-500 space-y-1">

@@ -64,10 +64,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    console.log('SignUp attempt started for:', email);
     try {
       setLoading(true);
       const redirectUrl = `${window.location.origin}/`;
       
+      console.log('Making signup request to Supabase...');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -110,8 +112,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log('SignIn attempt started for:', email);
     try {
       setLoading(true);
+      console.log('Making signin request to Supabase...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
