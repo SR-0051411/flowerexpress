@@ -79,15 +79,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) {
+        console.error('Signup error:', error);
         return { success: false, message: error.message };
       }
 
-      if (data.user && !data.user.email_confirmed_at) {
-        return { success: true, message: 'Please check your email to confirm your account.' };
+      if (data.user && !data.session) {
+        return { success: true, message: 'Please check your email to confirm your account before signing in.' };
       }
 
       return { success: true, message: 'Account created successfully!' };
     } catch (error: any) {
+      console.error('Signup exception:', error);
       return { success: false, message: error.message || 'An error occurred during sign up.' };
     }
   };
