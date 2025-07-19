@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      password_reset_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          phone_otp: string | null
+          token: string
+          used: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          phone_otp?: string | null
+          token: string
+          used?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          phone_otp?: string | null
+          token?: string
+          used?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -21,7 +51,10 @@ export type Database = {
           created_at: string | null
           full_name: string | null
           id: string
+          otp_expires_at: string | null
           phone: string | null
+          phone_otp: string | null
+          phone_verified: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -30,7 +63,10 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id: string
+          otp_expires_at?: string | null
           phone?: string | null
+          phone_otp?: string | null
+          phone_verified?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -39,7 +75,10 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          otp_expires_at?: string | null
           phone?: string | null
+          phone_otp?: string | null
+          phone_verified?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
@@ -49,7 +88,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_tokens: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

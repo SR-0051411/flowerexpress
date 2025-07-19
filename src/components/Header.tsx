@@ -112,6 +112,14 @@ const Header = ({
                     {userEmail}
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => window.location.href = '/profile'}
+                    className="focus:bg-pink-50"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    My Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-red-600">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out

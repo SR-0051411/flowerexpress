@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Flower2, Mail, Lock, User, Shield, Heart, Star } from "lucide-react";
+import { Flower2, Mail, Lock, User, Shield, Heart, Star, KeyRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
@@ -23,6 +23,12 @@ const Auth = () => {
   });
   const [ownerPassword, setOwnerPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [forgotPasswordData, setForgotPasswordData] = useState({
+    phone: "",
+    otp: "",
+    newPassword: "",
+    step: 1 // 1: phone input, 2: otp verification, 3: new password
+  });
   const { signUp, signIn, login, user } = useAuth();
   const navigate = useNavigate();
 
@@ -118,6 +124,53 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      if (forgotPasswordData.step === 1) {
+        // Send OTP to phone
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // In production, this would be sent via SMS service
+        toast({
+          title: "OTP Sent",
+          description: `Demo OTP: ${otp} (In production, this would be sent via SMS)`,
+          duration: 10000
+        });
+        
+        setForgotPasswordData(prev => ({ ...prev, step: 2, otp: otp }));
+      } else if (forgotPasswordData.step === 2) {
+        // Verify OTP
+        if (forgotPasswordData.otp === forgotPasswordData.otp) {
+          setForgotPasswordData(prev => ({ ...prev, step: 3 }));
+          toast({
+            title: "OTP Verified",
+            description: "Please enter your new password"
+          });
+        } else {
+          throw new Error("Invalid OTP");
+        }
+      } else if (forgotPasswordData.step === 3) {
+        // Reset password
+        toast({
+          title: "Password Reset Successful",
+          description: "Your password has been updated successfully"
+        });
+        setForgotPasswordData({ phone: "", otp: "", newPassword: "", step: 1 });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
@@ -165,12 +218,15 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className={`grid w-full ${!user ? 'grid-cols-3' : 'grid-cols-2'} mb-6`}>
+              <TabsList className={`grid w-full ${!user ? 'grid-cols-4' : 'grid-cols-3'} mb-6`}>
                 <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                   Login
                 </TabsTrigger>
                 <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                   Create Account
+                </TabsTrigger>
+                <TabsTrigger value="forgot" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                  Reset
                 </TabsTrigger>
                 {/* Only show Owner tab if no user is signed in */}
                 {!user && (
@@ -223,6 +279,22 @@ const Auth = () => {
                     {isLoading ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
+                <div className="text-center">
+                  <p className="text-sm text-gray-600">
+                    Forgot your password?{" "}
+                    <button 
+                      type="button"
+                      className="text-pink-600 hover:text-pink-700 font-medium"
+                      onClick={() => {
+                        // Switch to forgot password tab
+                        const forgotTab = document.querySelector('[value="forgot"]') as HTMLElement;
+                        if (forgotTab) forgotTab.click();
+                      }}
+                    >
+                      Reset it here
+                    </button>
+                  </p>
+                </div>
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-6">
@@ -283,6 +355,95 @@ const Auth = () => {
                   >
                     {isLoading ? "Creating Account..." : "Create Account"}
                   </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="forgot" className="space-y-6">
+                <div className="text-center mb-4">
+                  <KeyRound className="w-12 h-12 mx-auto text-orange-600 mb-2" />
+                  <h3 className="text-lg font-semibold text-gray-800">Reset Password</h3>
+                  <p className="text-sm text-gray-600">
+                    {forgotPasswordData.step === 1 && "Enter your phone number to receive OTP"}
+                    {forgotPasswordData.step === 2 && "Enter the OTP sent to your phone"}
+                    {forgotPasswordData.step === 3 && "Create your new password"}
+                  </p>
+                </div>
+
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  {forgotPasswordData.step === 1 && (
+                    <div className="space-y-2">
+                      <Label htmlFor="forgot-phone" className="text-gray-700 font-medium">Phone Number</Label>
+                      <div className="relative">
+                        <Input
+                          id="forgot-phone"
+                          type="tel"
+                          placeholder="Enter your registered phone number"
+                          value={forgotPasswordData.phone}
+                          onChange={(e) => setForgotPasswordData({ ...forgotPasswordData, phone: e.target.value })}
+                          className="h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {forgotPasswordData.step === 2 && (
+                    <div className="space-y-2">
+                      <Label htmlFor="forgot-otp" className="text-gray-700 font-medium">Enter OTP</Label>
+                      <div className="relative">
+                        <Input
+                          id="forgot-otp"
+                          type="text"
+                          placeholder="Enter 6-digit OTP"
+                          value={forgotPasswordData.otp}
+                          onChange={(e) => setForgotPasswordData({ ...forgotPasswordData, otp: e.target.value })}
+                          className="h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                          maxLength={6}
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {forgotPasswordData.step === 3 && (
+                    <div className="space-y-2">
+                      <Label htmlFor="forgot-newpass" className="text-gray-700 font-medium">New Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="forgot-newpass"
+                          type="password"
+                          placeholder="Enter your new password"
+                          value={forgotPasswordData.newPassword}
+                          onChange={(e) => setForgotPasswordData({ ...forgotPasswordData, newPassword: e.target.value })}
+                          className="pl-10 h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                          minLength={6}
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium shadow-lg"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Processing..." : 
+                     forgotPasswordData.step === 1 ? "Send OTP" :
+                     forgotPasswordData.step === 2 ? "Verify OTP" : "Reset Password"}
+                  </Button>
+                  
+                  {forgotPasswordData.step > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setForgotPasswordData({ phone: "", otp: "", newPassword: "", step: 1 })}
+                    >
+                      Start Over
+                    </Button>
+                  )}
                 </form>
               </TabsContent>
 
