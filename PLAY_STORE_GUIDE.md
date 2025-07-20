@@ -1,11 +1,13 @@
-# Google Play Store Upload Guide for FlowerExpress Android App
+# Complete Guide: Publishing FlowerExpress to Google Play Store via Android Studio
 
-## Prerequisites
+## Prerequisites & Environment Setup
 
+### Required Software:
 1. **Android Studio**: Download and install from [developer.android.com](https://developer.android.com/studio)
-2. **Google Play Console Account**: Create account at [play.google.com/console](https://play.google.com/console)
+2. **Google Play Console Account**: Create account at [play.google.com/console](https://play.google.com/console) ($25 registration fee)
 3. **Java Development Kit (JDK)**: Version 11 or higher
-4. **Git**: For cloning your repository
+4. **Node.js**: Download from [nodejs.org](https://nodejs.org/)
+5. **Git**: For cloning your repository
 
 ## Step 1: Setup Development Environment
 

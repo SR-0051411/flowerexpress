@@ -61,15 +61,26 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
+      console.log('Fetching profile for user:', user?.id);
+      
+      if (!user?.id) {
+        console.log('No user ID found');
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .maybeSingle();
+
+      console.log('Profile query result:', { data, error });
 
       if (error) throw error;
 
       if (data) {
+        console.log('Profile found:', data);
         setProfile(data);
         setFormData({
           full_name: data.full_name || '',
@@ -78,14 +89,24 @@ const Profile = () => {
           phone: data.phone || ''
         });
       } else {
+        console.log('No profile found, creating new one');
         // Create profile if it doesn't exist
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
-          .insert([{ id: user?.id, full_name: user?.email?.split('@')[0] || '' }])
+          .insert([{ 
+            id: user.id, 
+            full_name: user.email?.split('@')[0] || 'User' 
+          }])
           .select()
           .single();
 
-        if (createError) throw createError;
+        console.log('New profile creation result:', { newProfile, createError });
+
+        if (createError) {
+          console.error('Error creating profile:', createError);
+          throw createError;
+        }
+        
         setProfile(newProfile);
         setFormData({
           full_name: newProfile.full_name || '',
@@ -98,8 +119,23 @@ const Profile = () => {
       console.error('Error fetching profile:', error);
       toast({
         title: "Error",
-        description: "Failed to load profile",
+        description: "Failed to load profile data. Please refresh and try again.",
         variant: "destructive"
+      });
+      // Set a default profile to show the page
+      setProfile({
+        id: user?.id || '',
+        full_name: user?.email?.split('@')[0] || 'User',
+        address: null,
+        city: null,
+        phone: null,
+        phone_verified: false
+      });
+      setFormData({
+        full_name: user?.email?.split('@')[0] || 'User',
+        address: '',
+        city: '',
+        phone: ''
       });
     } finally {
       setLoading(false);

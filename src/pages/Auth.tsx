@@ -26,6 +26,7 @@ const Auth = () => {
   const [forgotPasswordData, setForgotPasswordData] = useState({
     phone: "",
     otp: "",
+    generatedOtp: "",
     newPassword: "",
     step: 1 // 1: phone input, 2: otp verification, 3: new password
   });
@@ -141,18 +142,17 @@ const Auth = () => {
           duration: 10000
         });
         
-        setForgotPasswordData(prev => ({ ...prev, step: 2, otp: otp }));
+        setForgotPasswordData(prev => ({ ...prev, step: 2, generatedOtp: otp }));
       } else if (forgotPasswordData.step === 2) {
-        // Verify OTP - in production, this would validate against a stored OTP
-        const enteredOtp = (document.getElementById('forgot-otp') as HTMLInputElement)?.value;
-        if (enteredOtp && enteredOtp.length === 6) {
+        // Verify OTP - Compare with the generated OTP
+        if (forgotPasswordData.otp === forgotPasswordData.generatedOtp) {
           setForgotPasswordData(prev => ({ ...prev, step: 3 }));
           toast({
             title: "OTP Verified",
             description: "Please enter your new password"
           });
         } else {
-          throw new Error("Please enter a valid 6-digit OTP");
+          throw new Error("Invalid OTP. Please check and try again.");
         }
       } else if (forgotPasswordData.step === 3) {
         // Reset password
@@ -160,7 +160,7 @@ const Auth = () => {
           title: "Password Reset Successful",
           description: "Your password has been updated successfully"
         });
-        setForgotPasswordData({ phone: "", otp: "", newPassword: "", step: 1 });
+        setForgotPasswordData({ phone: "", otp: "", generatedOtp: "", newPassword: "", step: 1 });
       }
     } catch (error: any) {
       toast({
@@ -366,7 +366,7 @@ const Auth = () => {
                           className="flex-1 h-12"
                           onClick={() => {
                             setShowForgotPassword(false);
-                            setForgotPasswordData({ phone: "", otp: "", newPassword: "", step: 1 });
+                            setForgotPasswordData({ phone: "", otp: "", generatedOtp: "", newPassword: "", step: 1 });
                           }}
                         >
                           Cancel
