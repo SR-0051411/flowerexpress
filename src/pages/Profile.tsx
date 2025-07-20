@@ -238,6 +238,22 @@ const Profile = () => {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-primary">
+        <Header cartCount={0} onCartClick={() => {}} onAdminPanelClick={() => {}} onOrderManagementClick={() => {}} onOwnerLoginClick={() => {}} onSignOut={() => {}} />
+        <div className="flex items-center justify-center pt-32">
+          <div className="text-center text-white">
+            <h2 className="text-2xl font-bold mb-4">Please sign in to view your profile</h2>
+            <Button onClick={() => window.location.href = '/auth'} className="bg-white text-primary hover:bg-gray-100">
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-primary">
       <Header cartCount={0} onCartClick={() => {}} onAdminPanelClick={() => {}} onOrderManagementClick={() => {}} onOwnerLoginClick={() => {}} onSignOut={() => {}} />
