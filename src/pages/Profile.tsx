@@ -7,144 +7,86 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { 
-  Loader2, 
-  Edit, 
-  Save, 
-  X, 
-  Phone, 
-  MapPin, 
-  Mail, 
-  User, 
-  Package,
-  ShoppingBag
-} from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit, Save, X, Package, ShoppingBag } from 'lucide-react';
 import Header from '@/components/Header';
-
-interface Profile {
-  id: string;
-  full_name: string | null;
-  address: string | null;
-  city: string | null;
-  phone: string | null;
-  phone_verified: boolean;
-}
 
 const Profile = () => {
   const { user } = useAuth();
   const { orders } = usePayment();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({
+  const [profile, setProfile] = useState({
     full_name: '',
+    phone: '',
     address: '',
-    city: '',
-    phone: ''
+    city: ''
   });
 
   useEffect(() => {
     if (user) {
-      fetchProfile();
-    } else {
-      setLoading(false);
+      // Set default values
+      setProfile({
+        full_name: user.email?.split('@')[0] || 'User',
+        phone: '',
+        address: '',
+        city: ''
+      });
+      
+      // Try to load from database
+      loadProfile();
     }
   }, [user]);
 
-  const fetchProfile = async () => {
+  const loadProfile = async () => {
     try {
-      if (!user?.id) {
-        setLoading(false);
-        return;
-      }
+      if (!user?.id) return;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
-
       if (data) {
-        setProfile(data);
-        setFormData({
-          full_name: data.full_name || '',
+        setProfile({
+          full_name: data.full_name || user.email?.split('@')[0] || 'User',
+          phone: data.phone || '',
           address: data.address || '',
-          city: data.city || '',
-          phone: data.phone || ''
-        });
-      } else {
-        // Create profile if it doesn't exist
-        const newProfile = {
-          id: user.id,
-          full_name: user.email?.split('@')[0] || 'User',
-          address: null,
-          city: null,
-          phone: null,
-          phone_verified: false
-        };
-        
-        const { error: createError } = await supabase
-          .from('profiles')
-          .insert([newProfile]);
-
-        if (createError) throw createError;
-        
-        setProfile(newProfile);
-        setFormData({
-          full_name: newProfile.full_name || '',
-          address: '',
-          city: '',
-          phone: ''
+          city: data.city || ''
         });
       }
-    } catch (error: any) {
-      console.error('Error fetching profile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load profile data",
-        variant: "destructive"
-      });
-      // Set default profile to show the page
-      setProfile({
-        id: user?.id || '',
-        full_name: user?.email?.split('@')[0] || 'User',
-        address: null,
-        city: null,
-        phone: null,
-        phone_verified: false
-      });
-      setFormData({
-        full_name: user?.email?.split('@')[0] || 'User',
-        address: '',
-        city: '',
-        phone: ''
-      });
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error loading profile:', error);
     }
   };
 
   const handleSave = async () => {
+    if (!user?.id) return;
+    
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Try to update first
+      const { error: updateError } = await supabase
         .from('profiles')
-        .update(formData)
-        .eq('id', user?.id);
+        .update(profile)
+        .eq('id', user.id);
 
-      if (error) throw error;
+      if (updateError) {
+        // If update fails, try to insert
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert([{ id: user.id, ...profile }]);
 
-      setProfile(prev => prev ? { ...prev, ...formData } : null);
+        if (insertError) throw insertError;
+      }
+
       setEditing(false);
       toast({
         title: "Success",
         description: "Profile updated successfully"
       });
     } catch (error: any) {
-      console.error('Error updating profile:', error);
+      console.error('Error saving profile:', error);
       toast({
         title: "Error",
         description: "Failed to update profile",
@@ -155,17 +97,6 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-primary">
-        <Header cartCount={0} onCartClick={() => {}} onAdminPanelClick={() => {}} onOrderManagementClick={() => {}} onOwnerLoginClick={() => {}} onSignOut={() => {}} />
-        <div className="flex items-center justify-center pt-32">
-          <Loader2 className="h-8 w-8 animate-spin text-white" />
-        </div>
-      </div>
-    );
-  }
-
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-primary">
@@ -173,7 +104,7 @@ const Profile = () => {
         <div className="flex items-center justify-center pt-32">
           <div className="text-center text-white">
             <h2 className="text-2xl font-bold mb-4">Please sign in to view your profile</h2>
-            <Button onClick={() => window.location.href = '/auth'} className="bg-white text-primary hover:bg-gray-100">
+            <Button onClick={() => window.location.href = '/auth'}>
               Sign In
             </Button>
           </div>
@@ -185,193 +116,135 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-primary">
       <Header cartCount={0} onCartClick={() => {}} onAdminPanelClick={() => {}} onOrderManagementClick={() => {}} onOwnerLoginClick={() => {}} onSignOut={() => {}} />
+      
       <div className="container mx-auto px-4 pt-32 pb-16">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-white mb-8">My Profile</h1>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Personal Information */}
-            <div className="lg:col-span-2">
-              <Card className="shadow-elegant">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-primary">
-                    <User className="h-5 w-5" />
-                    Personal Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="email" className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email
-                      </Label>
-                      <Input
-                        id="email"
-                        value={user?.email || ''}
-                        disabled
-                        className="bg-muted mt-1"
-                      />
-                    </div>
+          {/* Profile Information */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Email
+                  </Label>
+                  <Input value={user.email || ''} disabled className="bg-muted" />
+                </div>
 
-                    <div>
-                      <Label htmlFor="full_name" className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Full Name
-                      </Label>
-                      <Input
-                        id="full_name"
-                        value={formData.full_name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                        disabled={!editing}
-                        className="mt-1"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Full Name
+                  </Label>
+                  <Input
+                    value={profile.full_name}
+                    onChange={(e) => setProfile(prev => ({ ...prev, full_name: e.target.value }))}
+                    disabled={!editing}
+                    placeholder="Enter your full name"
+                  />
+                </div>
 
-                    <div>
-                      <Label htmlFor="phone" className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Phone Number
-                      </Label>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        disabled={!editing}
-                        placeholder="+91 12345 67890"
-                        className="mt-1"
-                      />
-                    </div>
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    Phone Number
+                  </Label>
+                  <Input
+                    value={profile.phone}
+                    onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                    disabled={!editing}
+                    placeholder="+91 12345 67890"
+                  />
+                </div>
 
-                    <div>
-                      <Label htmlFor="city" className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        City
-                      </Label>
-                      <Input
-                        id="city"
-                        value={formData.city}
-                        onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                        disabled={!editing}
-                        className="mt-1"
-                        placeholder="Enter your city"
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    City
+                  </Label>
+                  <Input
+                    value={profile.city}
+                    onChange={(e) => setProfile(prev => ({ ...prev, city: e.target.value }))}
+                    disabled={!editing}
+                    placeholder="Enter your city"
+                  />
+                </div>
+              </div>
 
-                  <div>
-                    <Label htmlFor="address" className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Complete Address
-                    </Label>
-                    <Input
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                      disabled={!editing}
-                      className="mt-1"
-                      placeholder="Enter your complete address"
-                    />
-                  </div>
+              <div>
+                <Label className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Complete Address
+                </Label>
+                <Input
+                  value={profile.address}
+                  onChange={(e) => setProfile(prev => ({ ...prev, address: e.target.value }))}
+                  disabled={!editing}
+                  placeholder="Enter your complete address"
+                />
+              </div>
 
-                  <div className="flex gap-2 pt-4">
-                    {!editing ? (
-                      <Button onClick={() => setEditing(true)} className="flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Edit Profile
-                      </Button>
-                    ) : (
-                      <>
-                        <Button
-                          onClick={handleSave}
-                          disabled={saving}
-                          className="flex items-center gap-2"
-                        >
-                          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                          Save Changes
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setEditing(false);
-                            setFormData({
-                              full_name: profile?.full_name || '',
-                              address: profile?.address || '',
-                              city: profile?.city || '',
-                              phone: profile?.phone || ''
-                            });
-                          }}
-                          className="flex items-center gap-2"
-                        >
-                          <X className="h-4 w-4" />
-                          Cancel
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Stats */}
-            <div>
-              <Card className="shadow-elegant">
-                <CardHeader>
-                  <CardTitle className="text-primary">Account Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{orders.length}</div>
-                    <div className="text-sm text-muted-foreground">Total Orders</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                      {orders.filter(order => order.status === 'delivered').length}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Delivered</div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start" 
-                    onClick={() => window.location.href = '/all-flowers'}
-                  >
-                    <ShoppingBag className="h-4 w-4 mr-2" />
-                    Shop Flowers
+              <div className="flex gap-2 pt-4">
+                {!editing ? (
+                  <Button onClick={() => setEditing(true)} className="flex items-center gap-2">
+                    <Edit className="h-4 w-4" />
+                    Edit Profile
                   </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                ) : (
+                  <>
+                    <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
+                      <Save className="h-4 w-4" />
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                    <Button variant="outline" onClick={() => setEditing(false)}>
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </Button>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Order History */}
-          <Card className="shadow-elegant mt-6">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-primary">
+              <CardTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5" />
-                Order History
+                Order History ({orders.length} orders)
               </CardTitle>
             </CardHeader>
             <CardContent>
               {orders.length === 0 ? (
-                <div className="text-center py-12">
-                  <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No Orders Yet</h3>
-                  <p className="text-muted-foreground mb-6">Start exploring our beautiful flower collection!</p>
+                <div className="text-center py-8">
+                  <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Orders Yet</h3>
+                  <p className="text-muted-foreground mb-4">Start exploring our beautiful flower collection!</p>
                   <Button onClick={() => window.location.href = '/all-flowers'}>
                     <ShoppingBag className="h-4 w-4 mr-2" />
                     Shop Now
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border rounded-lg p-4 bg-muted/30">
-                      <div className="flex justify-between items-start mb-3">
+                <div className="space-y-3">
+                  {orders.slice(0, 5).map((order) => (
+                    <div key={order.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start">
                         <div>
                           <h4 className="font-semibold">Order #{order.id.slice(-8)}</h4>
                           <p className="text-sm text-muted-foreground">
                             {new Date(order.createdAt).toLocaleDateString()}
+                          </p>
+                          <p className="text-sm">
+                            {order.items.map(item => `${item.name} (${item.quantity})`).join(', ')}
                           </p>
                         </div>
                         <div className="text-right">
@@ -385,12 +258,13 @@ const Profile = () => {
                           <p className="font-semibold mt-1">₹{order.total}</p>
                         </div>
                       </div>
-                      <div className="text-sm">
-                        <p><strong>Items:</strong> {order.items.map(item => `${item.name} (${item.quantity})`).join(', ')}</p>
-                        <p><strong>Delivery:</strong> {order.customerInfo.address}, {order.customerInfo.city}</p>
-                      </div>
                     </div>
                   ))}
+                  {orders.length > 5 && (
+                    <p className="text-center text-muted-foreground">
+                      Showing 5 of {orders.length} orders
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>
