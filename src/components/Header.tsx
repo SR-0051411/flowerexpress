@@ -3,6 +3,7 @@ import { ShoppingCart, Settings, Package, LogOut, User, Shield } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ const Header = ({
 }: HeaderProps) => {
   const { t } = useLanguage();
   const { isOwner, user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="bg-white shadow-sm border-b border-pink-100 sticky top-0 z-50">
@@ -113,7 +115,7 @@ const Header = ({
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
-                    onClick={() => window.location.href = '/profile'}
+                    onClick={() => navigate('/profile')}
                     className="focus:bg-pink-50"
                   >
                     <User className="mr-2 h-4 w-4" />

@@ -10,6 +10,8 @@ import { toast } from '@/hooks/use-toast';
 import { User, Mail, Phone, MapPin, Edit, Save, X, Package, ShoppingBag } from 'lucide-react';
 import Header from '@/components/Header';
 
+console.log('Profile component loaded');
+
 const Profile = () => {
   const { user } = useAuth();
   const { orders } = usePayment();
