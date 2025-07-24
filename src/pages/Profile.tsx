@@ -1,43 +1,50 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { usePayment } from '@/contexts/PaymentContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Mail, Phone, MapPin, Package } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User, Mail, Phone, MapPin, Package, Save } from 'lucide-react';
 import Header from '@/components/Header';
+import { toast } from '@/hooks/use-toast';
 
 const Profile = () => {
-  const { user } = useAuth();
-  const { orders } = usePayment();
   const [customerInfo, setCustomerInfo] = useState({
-    name: '',
-    phone: '',
-    address: ''
+    name: 'John Doe',
+    email: 'johndoe@example.com',
+    phone: '+91 98765 43210',
+    address: '123 Main Street, Flower District, Mumbai, Maharashtra 400001'
   });
 
-  useEffect(() => {
-    if (user) {
-      setCustomerInfo({
-        name: user.email?.split('@')[0] || 'User',
-        phone: '',
-        address: ''
-      });
+  // Sample order data
+  const orders = [
+    {
+      id: 'ORD001',
+      date: '2025-01-20',
+      status: 'Delivered',
+      total: 750,
+      items: [
+        { name: 'Rose Bouquet', quantity: 2 },
+        { name: 'Jasmine Garland', quantity: 1 }
+      ]
+    },
+    {
+      id: 'ORD002',
+      date: '2025-01-15',
+      status: 'Processing',
+      total: 1250,
+      items: [
+        { name: 'Wedding Decoration', quantity: 1 },
+        { name: 'Marigold Garland', quantity: 3 }
+      ]
     }
-  }, [user]);
+  ];
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-primary">
-        <Header cartCount={0} onCartClick={() => {}} onAdminPanelClick={() => {}} onOrderManagementClick={() => {}} onOwnerLoginClick={() => {}} onSignOut={() => {}} />
-        <div className="flex items-center justify-center pt-32">
-          <div className="text-center text-white">
-            <h2 className="text-2xl font-bold mb-4">Please sign in to view your profile</h2>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleSaveProfile = () => {
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been saved successfully.",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-primary">
@@ -61,9 +68,12 @@ const Profile = () => {
                   <Mail className="h-4 w-4" />
                   Email
                 </Label>
-                <div className="mt-1 p-3 bg-muted rounded-md text-sm">
-                  {user.email}
-                </div>
+                <Input
+                  value={customerInfo.email}
+                  onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="Enter your email address"
+                  className="mt-1"
+                />
               </div>
 
               <div>
@@ -104,6 +114,14 @@ const Profile = () => {
                   className="mt-1"
                 />
               </div>
+
+              <Button 
+                onClick={handleSaveProfile}
+                className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save Profile
+              </Button>
             </CardContent>
           </Card>
 
@@ -129,7 +147,7 @@ const Profile = () => {
                         <div>
                           <h4 className="font-semibold">Order #{order.id.slice(-8)}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(order.createdAt).toLocaleDateString()}
+                            {new Date(order.date).toLocaleDateString()}
                           </p>
                         </div>
                         <div className="text-right">
