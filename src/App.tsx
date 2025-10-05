@@ -14,7 +14,7 @@ import SpareFlowers from "./pages/SpareFlowers";
 import TiedFlowers from "./pages/TiedFlowers";
 import FlowerGarlands from "./pages/FlowerGarlands";
 import SeasonalFlowers from "./pages/SeasonalFlowers";
-
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +59,7 @@ const App = () => (
                   <SeasonalFlowers />
                 </ProtectedRoute>
               } />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
