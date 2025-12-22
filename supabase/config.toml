@@ -1,1 +1,10 @@
 project_id = "jelltafwhjjfijqjryri"
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.verify-captcha]
+verify_jwt = false
