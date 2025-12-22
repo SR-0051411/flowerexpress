@@ -6,9 +6,7 @@ import { useFlowers } from "@/contexts/FlowersContext";
 import { toast } from "@/hooks/use-toast";
 import ProductForm from "./admin/ProductForm";
 import ProductCard from "./admin/ProductCard";
-import PasswordChangeForm from "./admin/PasswordChangeForm";
 import { Flower } from "./admin/types";
-import { Settings, Lock } from "lucide-react";
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -16,11 +14,32 @@ interface AdminPanelProps {
 }
 
 const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
-  const { logout } = useAuth();
+  const { signOut, isOwner, user } = useAuth();
   const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [editingFlowers, setEditingFlowers] = useState<{[key: string]: Flower}>({});
+
+  // Ensure only authenticated admins can access
+  if (!isOwner || !user) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-800">
+              Access Denied
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-600">
+            You do not have permission to access the admin panel. 
+            Please sign in with an admin account.
+          </p>
+          <Button onClick={onClose} variant="outline">
+            Close
+          </Button>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const handleUpdateFlower = (flowerId: string, field: keyof Flower, value: any) => {
     setEditingFlowers(prev => ({
@@ -49,17 +68,13 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     onClose();
     toast({
       title: "Logged Out",
       description: "You have been logged out successfully",
     });
-  };
-
-  const handlePasswordChange = (newPassword: string) => {
-    console.log('Owner password updated successfully');
   };
 
   return (
@@ -68,17 +83,9 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
         <DialogHeader>
           <div className="flex justify-between items-center">
             <DialogTitle className="text-2xl font-bold text-gray-800">
-              Owner Dashboard - Product Management
+              Admin Dashboard - Product Management
             </DialogTitle>
             <div className="flex space-x-2">
-              <Button 
-                onClick={() => setShowPasswordChange(true)}
-                variant="outline"
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
-              >
-                <Lock className="w-4 h-4 mr-2" />
-                Change Password
-              </Button>
               <ProductForm 
                 showAddForm={showAddForm}
                 onToggleForm={() => setShowAddForm(!showAddForm)}
@@ -89,10 +96,13 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
                 variant="outline"
                 className="text-red-600 border-red-600 hover:bg-red-50"
               >
-                Logout
+                Sign Out
               </Button>
             </div>
           </div>
+          <p className="text-sm text-gray-500">
+            Signed in as: {user.email}
+          </p>
         </DialogHeader>
         
         <div className="space-y-6">
@@ -111,12 +121,6 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
             ))}
           </div>
         </div>
-
-        <PasswordChangeForm
-          isOpen={showPasswordChange}
-          onClose={() => setShowPasswordChange(false)}
-          onPasswordChange={handlePasswordChange}
-        />
       </DialogContent>
     </Dialog>
   );

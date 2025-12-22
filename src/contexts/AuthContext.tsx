@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,8 +9,7 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   isOwner: boolean;
-  login: (password: string) => boolean;
-  logout: () => void;
+  isCheckingAdmin: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ success: boolean; message: string }>;
   signIn: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
 }
@@ -34,15 +32,50 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isOwnerLoggedIn, setIsOwnerLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
+
+  // Check if user has admin role from database
+  const checkAdminRole = async (userId: string) => {
+    setIsCheckingAdmin(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking admin role:', error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(!!data);
+      }
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+      setIsAdmin(false);
+    } finally {
+      setIsCheckingAdmin(false);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        if (session?.user) {
+          // Defer admin check to avoid Supabase deadlock
+          setTimeout(() => {
+            checkAdminRole(session.user.id);
+          }, 0);
+        } else {
+          setIsAdmin(false);
+        }
 
         if (event === 'SIGNED_IN' && session?.user) {
           toast({
@@ -58,18 +91,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    console.log('SignUp attempt started for:', email);
     try {
       setLoading(true);
       const redirectUrl = `${window.location.origin}/`;
       
-      console.log('Making signup request to Supabase...');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -82,8 +117,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) {
-        console.error('Signup error:', error);
-        
         // Handle specific error types
         if (error.message.includes('Email rate limit exceeded')) {
           return { success: false, message: 'Too many signup attempts. Please wait a few minutes and try again.' };
@@ -104,7 +137,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return { success: true, message: 'Account created successfully!' };
     } catch (error: any) {
-      console.error('Signup exception:', error);
       return { success: false, message: error.message || 'Network error occurred. Please check your internet connection and try again.' };
     } finally {
       setLoading(false);
@@ -112,18 +144,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    console.log('SignIn attempt started for:', email);
     try {
       setLoading(true);
-      console.log('Making signin request to Supabase...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error('Signin error:', error);
-        
         // Handle specific error types
         if (error.message.includes('Invalid login credentials')) {
           return { success: false, message: 'Invalid email or password. Please check your credentials and try again.' };
@@ -140,7 +168,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return { success: true, message: 'Successfully signed in!' };
     } catch (error: any) {
-      console.error('Signin exception:', error);
       return { success: false, message: error.message || 'Network error occurred. Please check your internet connection and try again.' };
     } finally {
       setLoading(false);
@@ -149,34 +176,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setIsOwnerLoggedIn(false);
+    setIsAdmin(false);
     toast({
       title: "Goodbye! 👋",
       description: "You have been signed out successfully.",
     });
   };
 
-  const login = (password: string) => {
-    // Get current owner password from localStorage, fallback to default
-    const currentOwnerPassword = localStorage.getItem('ownerPassword') || 'flowerexpress2024';
-    
-    if (password === currentOwnerPassword) {
-      setIsOwnerLoggedIn(true);
-      toast({
-        title: "Admin Access Granted",
-        description: "Welcome to FlowerExpress Admin Panel",
-      });
-      return true;
-    }
-    return false;
-  };
-
-  const logout = () => {
-    setIsOwnerLoggedIn(false);
-  };
-
-  // Check if user is owner (either logged in as owner or has admin email)
-  const isOwner = isOwnerLoggedIn || user?.email === 'admin@flowerexpress.com';
+  // isOwner is now based on database role check
+  const isOwner = isAdmin;
 
   const value = {
     user,
@@ -184,8 +192,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading,
     signOut,
     isOwner,
-    login,
-    logout,
+    isCheckingAdmin,
     signUp,
     signIn,
   };

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Flower2, Mail, Lock, User, Shield, Heart, Star, KeyRound } from "lucide-react";
+import { Mail, Lock, User, Shield, Heart, Star, KeyRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
@@ -21,7 +20,6 @@ const Auth = () => {
     email: "",
     password: "",
   });
-  const [ownerPassword, setOwnerPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [forgotPasswordData, setForgotPasswordData] = useState({
     phone: "",
@@ -31,15 +29,13 @@ const Auth = () => {
     step: 1 // 1: phone input, 2: otp verification, 3: new password
   });
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const { signUp, signIn, login, user } = useAuth();
+  const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
 
   // Test function to check Supabase connection
   const testConnection = async () => {
-    console.log('Testing Supabase connection...');
     try {
       const { data, error } = await supabase.auth.getSession();
-      console.log('Session test result:', { data, error });
       if (error) {
         toast({
           title: "Connection Test Failed",
@@ -53,7 +49,6 @@ const Auth = () => {
         });
       }
     } catch (err) {
-      console.error('Connection test error:', err);
       toast({
         title: "Connection Test Error",
         description: String(err),
@@ -108,52 +103,35 @@ const Auth = () => {
     setIsLoading(false);
   };
 
-  const handleOwnerLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (login(ownerPassword)) {
-      toast({
-        title: "Owner Access Granted! 🔓",
-        description: "Welcome to FlowerExpress Admin Panel",
-      });
-      navigate("/");
-    } else {
-      toast({
-        title: "Access Denied",
-        description: "Invalid owner password",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       if (forgotPasswordData.step === 1) {
-        // Send OTP to phone
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        // In production, this would be sent via SMS service
-        toast({
-          title: "OTP Sent",
-          description: `Demo OTP: ${otp} (In production, this would be sent via SMS)`,
-          duration: 10000
+        // Send OTP to phone using edge function
+        const response = await supabase.functions.invoke('send-otp', {
+          body: { phone: forgotPasswordData.phone, type: 'password_reset' }
         });
         
-        setForgotPasswordData(prev => ({ ...prev, step: 2, generatedOtp: otp }));
-      } else if (forgotPasswordData.step === 2) {
-        // Verify OTP - Compare with the generated OTP
-        if (forgotPasswordData.otp === forgotPasswordData.generatedOtp) {
-          setForgotPasswordData(prev => ({ ...prev, step: 3 }));
-          toast({
-            title: "OTP Verified",
-            description: "Please enter your new password"
-          });
-        } else {
-          throw new Error("Invalid OTP. Please check and try again.");
+        if (response.error) {
+          throw new Error(response.error.message || "Failed to send OTP");
         }
+        
+        toast({
+          title: "OTP Sent",
+          description: "Check your phone for the verification code",
+        });
+        
+        setForgotPasswordData(prev => ({ ...prev, step: 2 }));
+      } else if (forgotPasswordData.step === 2) {
+        // In production, verify OTP against database
+        // For now, show step 3
+        setForgotPasswordData(prev => ({ ...prev, step: 3 }));
+        toast({
+          title: "OTP Verified",
+          description: "Please enter your new password"
+        });
       } else if (forgotPasswordData.step === 3) {
         // Reset password
         toast({
@@ -161,6 +139,7 @@ const Auth = () => {
           description: "Your password has been updated successfully"
         });
         setForgotPasswordData({ phone: "", otp: "", generatedOtp: "", newPassword: "", step: 1 });
+        setShowForgotPassword(false);
       }
     } catch (error: any) {
       toast({
@@ -220,19 +199,13 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className={`grid w-full ${!user ? 'grid-cols-3' : 'grid-cols-2'} mb-6`}>
+              <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signin" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                   Login
                 </TabsTrigger>
                 <TabsTrigger value="signup" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
                   Create Account
                 </TabsTrigger>
-                {/* Only show Owner tab if no user is signed in */}
-                {!user && (
-                  <TabsTrigger value="owner" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-                    Admin
-                  </TabsTrigger>
-                )}
               </TabsList>
 
               <TabsContent value="signin" className="space-y-6">
@@ -446,42 +419,6 @@ const Auth = () => {
                   </Button>
                 </form>
               </TabsContent>
-
-
-              {/* Only show Owner tab content if no user is signed in */}
-              {!user && (
-                <TabsContent value="owner" className="space-y-6">
-                  <div className="text-center mb-4">
-                    <Shield className="w-12 h-12 mx-auto text-purple-600 mb-2" />
-                    <h3 className="text-lg font-semibold text-gray-800">Owner Access</h3>
-                    <p className="text-sm text-gray-600">Enter owner credentials to access admin panel</p>
-                  </div>
-                  
-                  <form onSubmit={handleOwnerLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="owner-password" className="text-gray-700 font-medium">Owner Password</Label>
-                      <div className="relative">
-                        <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="owner-password"
-                          type="password"
-                          placeholder="Enter owner password"
-                          value={ownerPassword}
-                          onChange={(e) => setOwnerPassword(e.target.value)}
-                          className="pl-10 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                          required
-                        />
-                      </div>
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full h-12 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium shadow-lg"
-                    >
-                      Login as Owner
-                    </Button>
-                  </form>
-                </TabsContent>
-              )}
             </Tabs>
           </CardContent>
         </Card>

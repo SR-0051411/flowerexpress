@@ -34,7 +34,7 @@ const Header = ({
   isAdmin
 }: HeaderProps) => {
   const { t } = useLanguage();
-  const { isOwner, user, logout } = useAuth();
+  const { isOwner, user } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -73,16 +73,6 @@ const Header = ({
                   <Package className="w-4 h-4 mr-2" />
                   View Orders
                 </Button>
-                {/* Owner Sign Out Button - Only show if logged in as owner (not through Supabase) */}
-                {!user && (
-                  <Button 
-                    onClick={logout}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </Button>
-                )}
               </div>
             ) : (
               // Only show Owner Login button if no user is signed in AND not owner
