@@ -117,27 +117,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) {
-        // Handle specific error types
-        if (error.message.includes('Email rate limit exceeded')) {
-          return { success: false, message: 'Too many signup attempts. Please wait a few minutes and try again.' };
-        }
-        if (error.message.includes('User already registered')) {
-          return { success: false, message: 'An account with this email already exists. Please try signing in instead.' };
+        // Use generic error messages to prevent user enumeration
+        if (error.message.includes('Email rate limit exceeded') || error.message.includes('Too many requests')) {
+          return { success: false, message: 'Too many attempts. Please wait a few minutes and try again.' };
         }
         if (error.message.includes('Password should be at least')) {
           return { success: false, message: 'Password must be at least 6 characters long.' };
         }
-        
-        return { success: false, message: error.message };
+        // Generic message for all other signup errors (including "User already registered")
+        return { success: false, message: 'If this is a new email, check your inbox for a confirmation link. Otherwise, try signing in.' };
       }
 
       if (data.user && !data.session) {
-        return { success: true, message: 'Account created successfully! You can now sign in.' };
+        return { success: true, message: 'Check your email for a confirmation link to complete signup.' };
       }
 
       return { success: true, message: 'Account created successfully!' };
     } catch (error: any) {
-      return { success: false, message: error.message || 'Network error occurred. Please check your internet connection and try again.' };
+      return { success: false, message: 'Something went wrong. Please try again.' };
     } finally {
       setLoading(false);
     }
@@ -152,23 +149,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) {
-        // Handle specific error types
-        if (error.message.includes('Invalid login credentials')) {
-          return { success: false, message: 'Invalid email or password. Please check your credentials and try again.' };
-        }
-        if (error.message.includes('Email not confirmed')) {
-          return { success: false, message: 'Please check your email and confirm your account before signing in.' };
-        }
+        // Use generic error messages to prevent user enumeration
         if (error.message.includes('Too many requests')) {
-          return { success: false, message: 'Too many login attempts. Please wait a few minutes and try again.' };
+          return { success: false, message: 'Too many attempts. Please wait a few minutes and try again.' };
         }
-        
-        return { success: false, message: error.message };
+        // Generic message for all auth failures (wrong password, user not found, email not confirmed)
+        return { success: false, message: 'Invalid email or password. If you haven\'t confirmed your email, please check your inbox.' };
       }
 
       return { success: true, message: 'Successfully signed in!' };
     } catch (error: any) {
-      return { success: false, message: error.message || 'Network error occurred. Please check your internet connection and try again.' };
+      return { success: false, message: 'Something went wrong. Please try again.' };
     } finally {
       setLoading(false);
     }
