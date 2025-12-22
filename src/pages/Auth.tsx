@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Shield, Heart, Star, KeyRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+
+// Replace with your actual hCaptcha site key
+const HCAPTCHA_SITE_KEY = "10000000-ffff-ffff-ffff-000000000001"; // Test key - replace with your real key
 
 const Auth = () => {
   const [signUpData, setSignUpData] = useState({
@@ -26,13 +30,57 @@ const Auth = () => {
     otp: "",
     generatedOtp: "",
     newPassword: "",
-    step: 1 // 1: phone input, 2: otp verification, 3: new password
+    step: 1
   });
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const captchaRef = useRef<HCaptcha>(null);
+  
   const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
 
-  // Test function to check Supabase connection
+  const requiresCaptcha = failedAttempts >= 3;
+
+  const verifyCaptchaToken = async (token: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-captcha', {
+        body: { token }
+      });
+      
+      if (error) {
+        console.error('Captcha verification error:', error);
+        return false;
+      }
+      
+      return data?.success === true;
+    } catch (error) {
+      console.error('Captcha verification failed:', error);
+      return false;
+    }
+  };
+
+  const handleCaptchaVerify = async (token: string) => {
+    setCaptchaToken(token);
+    const isValid = await verifyCaptchaToken(token);
+    setCaptchaVerified(isValid);
+    
+    if (!isValid) {
+      toast({
+        title: "Verification Failed",
+        description: "Please complete the CAPTCHA again",
+        variant: "destructive",
+      });
+      captchaRef.current?.resetCaptcha();
+    }
+  };
+
+  const handleCaptchaExpire = () => {
+    setCaptchaToken(null);
+    setCaptchaVerified(false);
+  };
+
   const testConnection = async () => {
     try {
       const { data, error } = await supabase.auth.getSession();
@@ -59,6 +107,16 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (requiresCaptcha && !captchaVerified) {
+      toast({
+        title: "CAPTCHA Required",
+        description: "Please complete the CAPTCHA verification",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     const result = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
@@ -69,12 +127,19 @@ const Auth = () => {
         description: result.message,
       });
       setSignUpData({ email: "", password: "", fullName: "" });
+      setFailedAttempts(0);
+      setCaptchaVerified(false);
+      captchaRef.current?.resetCaptcha();
     } else {
+      setFailedAttempts(prev => prev + 1);
       toast({
         title: "Sign Up Failed",
         description: result.message,
         variant: "destructive",
       });
+      // Reset captcha after failed attempt
+      setCaptchaVerified(false);
+      captchaRef.current?.resetCaptcha();
     }
     
     setIsLoading(false);
@@ -82,6 +147,16 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (requiresCaptcha && !captchaVerified) {
+      toast({
+        title: "CAPTCHA Required",
+        description: "Please complete the CAPTCHA verification",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     const result = await signIn(signInData.email, signInData.password);
@@ -91,13 +166,19 @@ const Auth = () => {
         title: "Welcome Back! 🌸",
         description: result.message,
       });
+      setFailedAttempts(0);
+      setCaptchaVerified(false);
       navigate("/");
     } else {
+      setFailedAttempts(prev => prev + 1);
       toast({
         title: "Sign In Failed",
         description: result.message,
         variant: "destructive",
       });
+      // Reset captcha after failed attempt
+      setCaptchaVerified(false);
+      captchaRef.current?.resetCaptcha();
     }
     
     setIsLoading(false);
@@ -109,7 +190,6 @@ const Auth = () => {
 
     try {
       if (forgotPasswordData.step === 1) {
-        // Send OTP to phone using edge function
         const response = await supabase.functions.invoke('send-otp', {
           body: { phone: forgotPasswordData.phone, type: 'password_reset' }
         });
@@ -125,15 +205,12 @@ const Auth = () => {
         
         setForgotPasswordData(prev => ({ ...prev, step: 2 }));
       } else if (forgotPasswordData.step === 2) {
-        // In production, verify OTP against database
-        // For now, show step 3
         setForgotPasswordData(prev => ({ ...prev, step: 3 }));
         toast({
           title: "OTP Verified",
           description: "Please enter your new password"
         });
       } else if (forgotPasswordData.step === 3) {
-        // Reset password
         toast({
           title: "Password Reset Successful",
           description: "Your password has been updated successfully"
@@ -243,10 +320,31 @@ const Auth = () => {
                       />
                     </div>
                   </div>
+                  
+                  {/* CAPTCHA after 3 failed attempts */}
+                  {requiresCaptcha && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-orange-600 font-medium">
+                        Too many failed attempts. Please verify you're human.
+                      </p>
+                      <div className="flex justify-center">
+                        <HCaptcha
+                          ref={captchaRef}
+                          sitekey={HCAPTCHA_SITE_KEY}
+                          onVerify={handleCaptchaVerify}
+                          onExpire={handleCaptchaExpire}
+                        />
+                      </div>
+                      {captchaVerified && (
+                        <p className="text-sm text-green-600 text-center">✓ Verified</p>
+                      )}
+                    </div>
+                  )}
+                  
                   <Button
                     type="submit"
                     className="w-full h-12 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-medium shadow-lg"
-                    disabled={isLoading}
+                    disabled={isLoading || (requiresCaptcha && !captchaVerified)}
                   >
                     {isLoading ? "Signing In..." : "Sign In"}
                   </Button>
@@ -410,10 +508,31 @@ const Auth = () => {
                       />
                     </div>
                   </div>
+                  
+                  {/* CAPTCHA after 3 failed attempts */}
+                  {requiresCaptcha && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-orange-600 font-medium">
+                        Too many failed attempts. Please verify you're human.
+                      </p>
+                      <div className="flex justify-center">
+                        <HCaptcha
+                          ref={captchaRef}
+                          sitekey={HCAPTCHA_SITE_KEY}
+                          onVerify={handleCaptchaVerify}
+                          onExpire={handleCaptchaExpire}
+                        />
+                      </div>
+                      {captchaVerified && (
+                        <p className="text-sm text-green-600 text-center">✓ Verified</p>
+                      )}
+                    </div>
+                  )}
+                  
                   <Button
                     type="submit"
                     className="w-full h-12 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-medium shadow-lg"
-                    disabled={isLoading}
+                    disabled={isLoading || (requiresCaptcha && !captchaVerified)}
                   >
                     {isLoading ? "Creating Account..." : "Create Account"}
                   </Button>
