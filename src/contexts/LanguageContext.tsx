@@ -23,7 +23,6 @@ const translations = {
     // Categories
     shopByCategory: 'Shop by Category',
     allFlowers: 'All Flowers',
-    spareFlowers: 'Spare Flowers (Loose)',
     tiedFlower: 'Tied Flower',
     flowerGarland: 'Flower Garland (Maalai)',
     
@@ -55,10 +54,8 @@ const translations = {
     heroTitleHighlight: 'நாளை டெலிவரி',
     heroSubtitle: 'இன்று ஆர்டர் செய்யுங்கள், நாளை புதிய பூக்களைப் பெறுங்கள் - முதல் புதிய பூ டெலிவரி சேவை',
     
-    // Categories
     shopByCategory: 'வகை அடிப்படையில் கடை',
     allFlowers: 'அனைத்து பூக்கள்',
-    spareFlowers: 'தனித்த பூக்கள்',
     tiedFlower: 'கட்டிய பூ',
     flowerGarland: 'பூ மாலை',
     

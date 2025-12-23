@@ -234,7 +234,6 @@ export const initialFlowers: Flower[] = [
 // Updated categories - now 5 categories including seasonal
 export const categories = [
   { id: "all", titleKey: "allFlowers", image: "🌺" },
-  { id: "spare", titleKey: "spareFlowers", image: "🌼" },
   { id: "tied", titleKey: "tiedFlower", image: "🌿" },
   { id: "garland", titleKey: "flowerGarland", image: "🌸" },
   { id: "seasonal", titleKey: "seasonalFlowers", image: "🌸" }

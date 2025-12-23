@@ -4,7 +4,6 @@ import { categories } from "@/data/flowersData";
 
 const categoryTitles = {
   all: "அனைத்து பூக்கள் (All Flowers)",
-  spare: "தனித்த பூக்கள் (Spare Flowers)",
   tied: "கட்டிய பூ (Tied Flowers)", 
   garland: "பூ மாலை (Flower Garlands)",
   seasonal: "பருவகால பூக்கள் (Seasonal Flowers)"
