@@ -10,7 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AllFlowers from "./pages/AllFlowers";
-import SpareFlowers from "./pages/SpareFlowers";
+
 import TiedFlowers from "./pages/TiedFlowers";
 import FlowerGarlands from "./pages/FlowerGarlands";
 import SeasonalFlowers from "./pages/SeasonalFlowers";
@@ -38,11 +38,6 @@ const App = () => (
               <Route path="/all-flowers" element={
                 <ProtectedRoute>
                   <AllFlowers />
-                </ProtectedRoute>
-              } />
-              <Route path="/spare-flowers" element={
-                <ProtectedRoute>
-                  <SpareFlowers />
                 </ProtectedRoute>
               } />
               <Route path="/tied-flowers" element={
