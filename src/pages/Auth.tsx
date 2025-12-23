@@ -11,8 +11,7 @@ import { Mail, Lock, User, Shield, Heart, Star, KeyRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
-// Replace with your actual hCaptcha site key
-const HCAPTCHA_SITE_KEY = "10000000-ffff-ffff-ffff-000000000001"; // Test key - replace with your real key
+const HCAPTCHA_SITE_KEY = "cf3ef482-d854-4312-a08e-208e5f46125c";
 
 const Auth = () => {
   const [signUpData, setSignUpData] = useState({
