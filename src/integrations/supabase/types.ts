@@ -72,6 +72,7 @@ export type Database = {
           created_at: string | null
           full_name: string | null
           id: string
+          order_notifications: boolean | null
           otp_expires_at: string | null
           phone: string | null
           phone_otp: string | null
@@ -84,6 +85,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id: string
+          order_notifications?: boolean | null
           otp_expires_at?: string | null
           phone?: string | null
           phone_otp?: string | null
@@ -96,6 +98,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          order_notifications?: boolean | null
           otp_expires_at?: string | null
           phone?: string | null
           phone_otp?: string | null

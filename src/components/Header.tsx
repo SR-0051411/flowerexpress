@@ -1,5 +1,5 @@
 
-import { ShoppingCart, Settings, Package, LogOut, User, Shield } from "lucide-react";
+import { ShoppingCart, Settings, Package, LogOut, User, Shield, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -94,9 +94,15 @@ const Header = ({
                     {userEmail}
                   </div>
                   <DropdownMenuSeparator />
+                  {/* Profile Settings - Available to all users */}
+                  <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
+                    <UserCog className="w-4 h-4 mr-2 text-purple-600" />
+                    Profile Settings
+                  </DropdownMenuItem>
                   {/* Admin/Owner options */}
                   {isOwner && (
                     <>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={onAdminPanelClick} className="cursor-pointer">
                         <Settings className="w-4 h-4 mr-2 text-green-600" />
                         Manage Products
@@ -105,9 +111,9 @@ const Header = ({
                         <Package className="w-4 h-4 mr-2 text-blue-600" />
                         View Orders
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                     </>
                   )}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-red-600 cursor-pointer">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out

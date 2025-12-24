@@ -10,10 +10,10 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AllFlowers from "./pages/AllFlowers";
-
 import TiedFlowers from "./pages/TiedFlowers";
 import FlowerGarlands from "./pages/FlowerGarlands";
 import SeasonalFlowers from "./pages/SeasonalFlowers";
+import ProfileSettings from "./pages/ProfileSettings";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import NotFound from "./pages/NotFound";
@@ -53,6 +53,11 @@ const App = () => (
               <Route path="/seasonal-flowers" element={
                 <ProtectedRoute>
                   <SeasonalFlowers />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <ProfileSettings />
                 </ProtectedRoute>
               } />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
