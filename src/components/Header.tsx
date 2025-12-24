@@ -56,35 +56,15 @@ const Header = ({
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* Owner/Admin Controls - Only show if user is owner */}
-            {isOwner ? (
-              <div className="flex space-x-2">
-                <Button 
-                  onClick={onAdminPanelClick}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Manage Products
-                </Button>
-                <Button 
-                  onClick={onOrderManagementClick}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2"
-                >
-                  <Package className="w-4 h-4 mr-2" />
-                  View Orders
-                </Button>
-              </div>
-            ) : (
-              // Only show Owner Login button if no user is signed in AND not owner
-              !user && !isOwner && (
-                <Button 
-                  onClick={onOwnerLoginClick}
-                  className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2"
-                >
-                  <Shield className="w-4 h-4 mr-2" />
-                  Owner Login
-                </Button>
-              )
+            {/* Owner Login button - Only show if no user is signed in */}
+            {!user && (
+              <Button 
+                onClick={onOwnerLoginClick}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Owner Login
+              </Button>
             )}
             
             <Button 
@@ -109,12 +89,26 @@ const Header = ({
                     <span className="hidden sm:inline">{userEmail?.split('@')[0]}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5 text-sm font-medium">
+                <DropdownMenuContent align="end" className="w-56 bg-white">
+                  <div className="px-2 py-1.5 text-sm font-medium text-gray-700">
                     {userEmail}
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onSignOut} className="text-red-600">
+                  {/* Admin/Owner options */}
+                  {isOwner && (
+                    <>
+                      <DropdownMenuItem onClick={onAdminPanelClick} className="cursor-pointer">
+                        <Settings className="w-4 h-4 mr-2 text-green-600" />
+                        Manage Products
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={onOrderManagementClick} className="cursor-pointer">
+                        <Package className="w-4 h-4 mr-2 text-blue-600" />
+                        View Orders
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem onClick={onSignOut} className="text-red-600 cursor-pointer">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
