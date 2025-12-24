@@ -1,5 +1,5 @@
 
-import { ShoppingCart, Settings, Package, LogOut, User, Shield, UserCog } from "lucide-react";
+import { ShoppingCart, Settings, Package, LogOut, User, Shield, UserCog, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -98,6 +98,10 @@ const Header = ({
                   <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
                     <UserCog className="w-4 h-4 mr-2 text-purple-600" />
                     Profile Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/orders")} className="cursor-pointer">
+                    <History className="w-4 h-4 mr-2 text-orange-600" />
+                    Order History
                   </DropdownMenuItem>
                   {/* Admin/Owner options */}
                   {isOwner && (
