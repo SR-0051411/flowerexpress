@@ -2,6 +2,7 @@
 import FlowerCard from "@/components/FlowerCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Flower } from "@/data/flowersData";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface ProductGridProps {
   flowers: Flower[];
@@ -19,6 +20,8 @@ const categoryTranslation = {
 };
 
 const ProductGrid = ({ flowers, searchTerm, selectedCategory, onAddToCart }: ProductGridProps) => {
+  const { isFavorite, toggleFavorite } = useFavorites();
+
   const filteredFlowers = flowers.filter(flower => {
     const mainName = flower.customName || flower.nameKey || "";
     const matchesSearch = mainName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -83,23 +86,28 @@ const ProductGrid = ({ flowers, searchTerm, selectedCategory, onAddToCart }: Pro
       {renderCategoryTitle()}
       {renderNoResults()}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredFlowers.map(flower => (
-          <FlowerCard
-            key={flower.id}
-            id={flower.id}
-            nameTa={flower.customName?.split('(')[0]?.trim() || flower.nameKey}
-            nameEn={flower.customName?.match(/\((.*?)\)/)?.[1] || flower.nameKey}
-            price={flower.price}
-            image={flower.image}
-            imageFileUrl={flower.imageFileUrl}
-            additionalImages={flower.additionalImages}
-            descTa={flower.customDesc?.split(' - ')[0] || ""}
-            descEn={flower.customDesc?.split(' - ')[1] || ""}
-            onAddToCart={onAddToCart}
-            tiedLength={flower.tiedLength}
-            ballQuantity={flower.ballQuantity}
-          />
-        ))}
+        {filteredFlowers.map(flower => {
+          const flowerName = flower.customName || flower.nameKey;
+          return (
+            <FlowerCard
+              key={flower.id}
+              id={flower.id}
+              nameTa={flower.customName?.split('(')[0]?.trim() || flower.nameKey}
+              nameEn={flower.customName?.match(/\((.*?)\)/)?.[1] || flower.nameKey}
+              price={flower.price}
+              image={flower.image}
+              imageFileUrl={flower.imageFileUrl}
+              additionalImages={flower.additionalImages}
+              descTa={flower.customDesc?.split(' - ')[0] || ""}
+              descEn={flower.customDesc?.split(' - ')[1] || ""}
+              onAddToCart={onAddToCart}
+              tiedLength={flower.tiedLength}
+              ballQuantity={flower.ballQuantity}
+              isFavorite={isFavorite(flower.id)}
+              onToggleFavorite={() => toggleFavorite(flower.id, flowerName)}
+            />
+          );
+        })}
       </div>
     </div>
   );
