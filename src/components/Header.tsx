@@ -1,5 +1,5 @@
 
-import { ShoppingCart, Settings, Package, LogOut, User, Shield, UserCog, History } from "lucide-react";
+import { ShoppingCart, Settings, Package, LogOut, User, Shield, UserCog, History, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -102,6 +102,10 @@ const Header = ({
                   <DropdownMenuItem onClick={() => navigate("/orders")} className="cursor-pointer">
                     <History className="w-4 h-4 mr-2 text-orange-600" />
                     Order History
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/favorites")} className="cursor-pointer">
+                    <Heart className="w-4 h-4 mr-2 text-pink-500" />
+                    Favorites
                   </DropdownMenuItem>
                   {/* Admin/Owner options */}
                   {isOwner && (

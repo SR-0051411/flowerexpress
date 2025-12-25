@@ -15,6 +15,7 @@ import FlowerGarlands from "./pages/FlowerGarlands";
 import SeasonalFlowers from "./pages/SeasonalFlowers";
 import ProfileSettings from "./pages/ProfileSettings";
 import OrderHistory from "./pages/OrderHistory";
+import Favorites from "./pages/Favorites";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,11 @@ const App = () => (
               <Route path="/orders" element={
                 <ProtectedRoute>
                   <OrderHistory />
+                </ProtectedRoute>
+              } />
+              <Route path="/favorites" element={
+                <ProtectedRoute>
+                  <Favorites />
                 </ProtectedRoute>
               } />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />

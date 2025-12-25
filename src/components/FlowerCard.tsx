@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Heart } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import {
   Carousel,
@@ -25,6 +25,8 @@ interface FlowerCardProps {
   ballQuantity?: number;
   imageFileUrl?: string;
   additionalImages?: { file?: File | null; url?: string }[];
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 const getBallSpec = (qty: number | undefined) => {
@@ -68,6 +70,8 @@ const FlowerCard = ({
   ballQuantity,
   imageFileUrl,
   additionalImages = [],
+  isFavorite = false,
+  onToggleFavorite,
 }: FlowerCardProps) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -120,7 +124,26 @@ const FlowerCard = ({
   }, [api]);
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border-2 border-pink-100">
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white border-2 border-pink-100 relative">
+      {/* Favorite Button */}
+      {onToggleFavorite && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite();
+          }}
+          className="absolute top-3 left-3 z-30 p-2 rounded-full bg-white/90 hover:bg-white shadow-md transition-all duration-200 hover:scale-110"
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart
+            className={`h-5 w-5 transition-colors ${
+              isFavorite
+                ? "text-pink-500 fill-pink-500"
+                : "text-gray-400 hover:text-pink-400"
+            }`}
+          />
+        </button>
+      )}
       <div className="aspect-square bg-gradient-to-br from-pink-50 to-rose-50 flex items-center justify-center relative group">
         {showCarousel ? (
           <div className="relative w-full h-full">
