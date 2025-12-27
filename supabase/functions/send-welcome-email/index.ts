@@ -1,5 +1,5 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0";
 import { Resend } from "npm:resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -15,13 +15,135 @@ interface WelcomeEmailRequest {
   confirmationUrl: string;
 }
 
+// Email validation regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Sanitize string for HTML to prevent XSS
+function sanitizeHtml(str: string): string {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Validate URL format and ensure it's from trusted domain
+function isValidConfirmationUrl(url: string, supabaseUrl: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  try {
+    const parsedUrl = new URL(url);
+    const supabaseDomain = new URL(supabaseUrl);
+    // Only allow URLs from Supabase domain or localhost for development
+    return parsedUrl.hostname === supabaseDomain.hostname || 
+           parsedUrl.hostname === 'localhost' ||
+           parsedUrl.hostname.endsWith('.supabase.co');
+  } catch {
+    return false;
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { email, name, confirmationUrl }: WelcomeEmailRequest = await req.json();
+    // Initialize Supabase client to verify authentication
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Missing Supabase environment variables");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Verify authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log("Unauthorized request: missing or invalid auth header");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify the JWT token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.log("Invalid token:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: "Invalid authentication token" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Parse request body
+    let body: WelcomeEmailRequest;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Invalid request body" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const { email, name, confirmationUrl } = body;
+
+    // Validate email format
+    if (!email || !emailRegex.test(email)) {
+      console.log("Invalid email format:", email?.substring(0, 5) + '***');
+      return new Response(
+        JSON.stringify({ error: "Invalid email address" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate email length
+    if (email.length > 254) {
+      return new Response(
+        JSON.stringify({ error: "Email address too long" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate and sanitize name
+    if (!name || typeof name !== 'string') {
+      return new Response(
+        JSON.stringify({ error: "Name is required" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Limit name length
+    if (name.length > 100) {
+      return new Response(
+        JSON.stringify({ error: "Name too long" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate confirmationUrl
+    if (!confirmationUrl || !isValidConfirmationUrl(confirmationUrl, supabaseUrl)) {
+      console.log("Invalid confirmation URL provided");
+      return new Response(
+        JSON.stringify({ error: "Invalid confirmation URL" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Sanitize name for HTML output
+    const sanitizedName = sanitizeHtml(name);
+    const sanitizedEmail = sanitizeHtml(email);
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -52,7 +174,7 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               
               <div class="content">
-                  <h2 style="color: #1f2937; margin-bottom: 20px;">Hello ${name}! 🌺</h2>
+                  <h2 style="color: #1f2937; margin-bottom: 20px;">Hello ${sanitizedName}! 🌺</h2>
                   
                   <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px;">
                       Thank you for joining FlowerExpress! We're thrilled to have you as part of our community of flower lovers.
@@ -86,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <p style="margin: 0 0 15px 0; font-weight: 600; color: #1f2937;">FlowerExpress</p>
                   <p style="margin: 0 0 15px 0;">Making every moment beautiful with fresh flowers</p>
                   <p style="margin: 0; font-size: 12px;">
-                      This email was sent to ${email}. If you didn't create an account with us, please ignore this email.
+                      This email was sent to ${sanitizedEmail}. If you didn't create an account with us, please ignore this email.
                   </p>
                   <p style="margin: 15px 0 0 0; font-size: 12px;">
                       Need help? Contact us at <a href="mailto:support@flowerexpress.com" style="color: #ec4899;">support@flowerexpress.com</a>
@@ -105,16 +227,16 @@ const handler = async (req: Request): Promise<Response> => {
       replyTo: "support@flowerexpress.com",
     });
 
-    console.log("Welcome email sent successfully:", emailResponse);
+    console.log("Welcome email sent successfully to:", email.substring(0, 3) + '***');
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
-    console.error("Error sending welcome email:", error);
+    console.error("Error sending welcome email:", error.message);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Failed to send email" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

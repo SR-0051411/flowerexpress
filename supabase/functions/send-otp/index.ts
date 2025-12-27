@@ -22,6 +22,15 @@ function generateSecureOTP(): string {
   return String(100000 + (array[0] % 900000));
 }
 
+// Hash OTP using SHA-256 with salt
+async function hashOTP(otp: string, salt: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(otp + salt);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -140,16 +149,30 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate cryptographically secure 6-digit OTP
     const otp = generateSecureOTP();
 
-    // Log OTP generation (without exposing the actual OTP in production)
+    // Hash the OTP before storing (use phone as salt for uniqueness)
+    const otpHash = await hashOTP(otp, cleanPhone);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+    // Store hashed OTP in profiles table
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ 
+        phone_otp: otpHash,
+        otp_expires_at: expiresAt
+      })
+      .eq('phone', cleanPhone);
+
+    if (updateError) {
+      console.error("Failed to store OTP hash:", updateError);
+      // Continue anyway - the OTP generation succeeded, SMS would still be sent
+    }
+
+    // Log OTP generation (masked for security)
     console.log(`OTP generated for phone: ${cleanPhone.substring(0, 4)}**** (Type: ${type})`);
 
     // In production, integrate with SMS service like Twilio, AWS SNS, etc.
-    // For now, store the OTP hash in the database
-    // TODO: Implement actual SMS sending
-
-    const message = type === 'verification' 
-      ? `Your FlowerExpress verification code is ready. Valid for 15 minutes.`
-      : `Your FlowerExpress password reset code is ready. Valid for 15 minutes.`;
+    // TODO: Implement actual SMS sending with the generated OTP
+    // Example: await sendSMS(cleanPhone, `Your FlowerExpress code is: ${otp}`);
 
     return new Response(JSON.stringify({ 
       success: true, 
