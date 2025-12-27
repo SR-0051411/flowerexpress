@@ -50,23 +50,12 @@ const PaymentGateway = ({ amount, onPaymentSuccess, onPaymentError }: PaymentGat
         }
       }
 
-      // Simulate payment processing with bank integration
-      console.log("Processing payment with method:", paymentMethod);
-      console.log("Amount:", amount);
-      console.log("Payment details:", { cardNumber: cardNumber.slice(-4), upiId, bankCode });
-      
-      // Simulate API call to bank's payment gateway
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // DEMO MODE: Simulated payment processing
+      // In production, integrate with a PCI-compliant payment gateway (Stripe, Razorpay, etc.)
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Simulate successful payment (90% success rate)
-      const isSuccess = Math.random() > 0.1;
-      
-      if (!isSuccess) {
-        throw new Error("Payment failed. Please try again or use a different payment method.");
-      }
-
-      // Generate a secure payment ID
-      const paymentId = `PAY_${Date.now()}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      // Demo: Always succeed in demo mode
+      const paymentId = `DEMO_${Date.now()}_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
       toast({
         title: "Payment Successful! 🎉",
@@ -75,7 +64,7 @@ const PaymentGateway = ({ amount, onPaymentSuccess, onPaymentError }: PaymentGat
 
       onPaymentSuccess(paymentId);
     } catch (error: any) {
-      console.error("Payment error:", error);
+      // Error handling without logging sensitive data
       toast({
         title: "Payment Failed",
         description: error.message || "There was an error processing your payment. Please try again.",
@@ -238,11 +227,11 @@ const PaymentGateway = ({ amount, onPaymentSuccess, onPaymentError }: PaymentGat
               </div>
             </TabsContent>
 
-            <div className="flex items-center space-x-2 text-sm text-gray-600 bg-green-50 p-4 rounded-lg">
-              <Shield className="w-5 h-5 text-green-600 flex-shrink-0" />
+            <div className="flex items-center space-x-2 text-sm text-amber-700 bg-amber-50 p-4 rounded-lg border border-amber-200">
+              <Shield className="w-5 h-5 text-amber-600 flex-shrink-0" />
               <div>
-                <p className="font-medium text-green-800">Bank-Grade Security</p>
-                <p className="text-green-700">Your payment is protected with 256-bit SSL encryption</p>
+                <p className="font-medium text-amber-800">Demo Mode</p>
+                <p className="text-amber-700">This is a demonstration. No real payments are processed.</p>
               </div>
             </div>
 
