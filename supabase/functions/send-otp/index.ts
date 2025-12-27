@@ -106,9 +106,9 @@ const handler = async (req: Request): Promise<Response> => {
       .gte('created_at', oneHourAgo);
 
     if (phoneCountError) {
-      console.error("Rate limit check error:", phoneCountError);
+      // Log error without sensitive data
+      console.error("Rate limit check failed");
     } else if (phoneCount && phoneCount >= 3) {
-      console.log(`Rate limit exceeded for phone: ${cleanPhone.substring(0, 4)}****`);
       return new Response(
         JSON.stringify({ error: "Too many OTP requests. Please try again later." }),
         { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -121,12 +121,11 @@ const handler = async (req: Request): Promise<Response> => {
         .from('otp_rate_limits')
         .select('*', { count: 'exact', head: true })
         .eq('ip_address', clientIP)
-        .gte('created_at', oneHourAgo);
+      .gte('created_at', oneHourAgo);
 
       if (ipCountError) {
-        console.error("IP rate limit check error:", ipCountError);
+        console.error("Rate limit check failed");
       } else if (ipCount && ipCount >= 10) {
-        console.log(`Rate limit exceeded for IP: ${clientIP}`);
         return new Response(
           JSON.stringify({ error: "Too many requests from your network. Please try again later." }),
           { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -143,7 +142,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
     if (insertError) {
-      console.error("Failed to record rate limit:", insertError);
+      console.error("Failed to record rate limit");
     }
 
     // Generate cryptographically secure 6-digit OTP
@@ -163,12 +162,11 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('phone', cleanPhone);
 
     if (updateError) {
-      console.error("Failed to store OTP hash:", updateError);
+      console.error("Failed to store OTP hash");
       // Continue anyway - the OTP generation succeeded, SMS would still be sent
     }
 
-    // Log OTP generation (masked for security)
-    console.log(`OTP generated for phone: ${cleanPhone.substring(0, 4)}**** (Type: ${type})`);
+    // OTP generated successfully - no logging of phone or type for security
 
     // In production, integrate with SMS service like Twilio, AWS SNS, etc.
     // TODO: Implement actual SMS sending with the generated OTP
