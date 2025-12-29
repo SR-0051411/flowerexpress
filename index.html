@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,14 +9,14 @@
     <meta name="keywords" content="flower delivery, fresh flowers, garlands, seasonal flowers, tamil flowers, flower shop" />
 
     <!-- Favicon & App Icons -->
-    <link rel="icon" href="/src/assets/app-icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="/src/assets/app-icon-192.png">
-    <link rel="icon" sizes="192x192" href="/src/assets/app-icon-192.png">
-    <link rel="icon" sizes="512x512" href="/src/assets/app-icon-512.png">
-    
+    <link rel="icon" href="/src/assets/app-icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/src/assets/app-icon-192.png" />
+    <link rel="icon" sizes="192x192" href="/src/assets/app-icon-192.png" />
+    <link rel="icon" sizes="512x512" href="/src/assets/app-icon-512.png" />
+
     <!-- PWA Manifest Icons -->
-    <link rel="manifest" href="/manifest.json">
-    
+    <link rel="manifest" href="/manifest.json" />
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#ec4899" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -37,16 +36,32 @@
     <meta name="twitter:title" content="FlowerExpressCo - Premium Flower Delivery" />
     <meta name="twitter:description" content="Fresh flowers, garlands, and seasonal arrangements delivered with care" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com https://jelltafwhjjfijqjryri.supabase.co 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content: blob:; connect-src 'self' https://jelltafwhjjfijqjryri.supabase.co;">
-    
-    <!-- Prevent zooming -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback so the Preview is never completely blank if JS fails to load -->
+      <div
+        style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf2f8,#ffffff,#fff1f2);padding:24px;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;"
+      >
+        <div style="text-align:center;max-width:520px;">
+          <div
+            style="width:44px;height:44px;border-radius:9999px;border:4px solid rgba(236,72,153,0.25);border-top-color:rgba(236,72,153,1);margin:0 auto 14px;animation:spin 1s linear infinite;"
+          ></div>
+          <h1 style="margin:0 0 8px;font-size:20px;line-height:1.2;color:#111827;">Loading FlowerExpressCo…</h1>
+          <p style="margin:0;color:#6b7280;font-size:14px;">If this stays stuck, refresh the preview (↻). If it still stays blank, there may be a browser extension blocking scripts.</p>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    </style>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+
