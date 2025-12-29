@@ -237,7 +237,7 @@ const Auth = () => {
             <div className="w-16 h-16 rounded-full border-3 border-pink-200 overflow-hidden shadow-lg">
               <img 
                 src="/lovable-uploads/8f5d8f7a-5451-4cb1-b6ed-30aa39799b28.png" 
-                alt="FlowerExpress Logo" 
+                alt="FlowerExpressCo Logo" 
                 className="w-full h-full object-cover"
               />
             </div>
@@ -458,7 +458,7 @@ const Auth = () => {
 
               <TabsContent value="signup" className="space-y-6">
                 <div className="text-center mb-4">
-                  <p className="text-sm text-gray-600">Create your FlowerExpress account to start ordering beautiful flowers.</p>
+                  <p className="text-sm text-gray-600">Create your FlowerExpressCo account to start ordering beautiful flowers.</p>
                 </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
@@ -555,7 +555,7 @@ const Auth = () => {
         {/* Terms and Privacy */}
         <div className="text-center text-xs text-gray-500 space-y-1">
           <p>By signing up, you agree to our Terms of Service and Privacy Policy</p>
-          <p className="font-medium text-pink-600">🌸 FlowerExpress - Premium Flower Delivery 🌸</p>
+          <p className="font-medium text-pink-600">🌸 FlowerExpressCo - Premium Flower Delivery 🌸</p>
         </div>
       </div>
     </div>

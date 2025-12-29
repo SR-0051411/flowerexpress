@@ -33,7 +33,7 @@ const DataDeletion = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">How to Request Data Deletion</h2>
               <p className="text-muted-foreground mb-4">
-                If you would like to delete your account and all associated data from FlowerExpress, please contact us using one of the methods below:
+                If you would like to delete your account and all associated data from FlowerExpressCo, please contact us using one of the methods below:
               </p>
               
               <div className="space-y-4">
@@ -42,8 +42,8 @@ const DataDeletion = () => {
                     <Mail className="h-6 w-6 text-primary" />
                     <div>
                       <p className="font-medium">Email Us</p>
-                      <a href="mailto:support@flowerexpress.com" className="text-primary hover:underline">
-                        support@flowerexpress.com
+                      <a href="mailto:support@flowerexpressco.com" className="text-primary hover:underline">
+                        support@flowerexpressco.com
                       </a>
                     </div>
                   </CardContent>

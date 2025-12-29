@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (event === 'SIGNED_IN' && session?.user) {
           toast({
-            title: "Welcome to FlowerExpress! 🌸",
+            title: "Welcome to FlowerExpressCo! 🌸",
             description: "You have successfully signed in.",
           });
         }
