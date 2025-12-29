@@ -8,6 +8,7 @@ import Cart from "@/components/Cart";
 import CheckoutForm from "@/components/CheckoutForm";
 import AdminPanel from "@/components/AdminPanel";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
@@ -100,6 +101,7 @@ const AllFlowersContent = () => {
       />
 
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { useFlowers } from "@/contexts/FlowersContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import FlowerCard from "@/components/FlowerCard";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Favorites = () => {
   const navigate = useNavigate();
@@ -128,6 +129,7 @@ const Favorites = () => {
       </div>
 
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };
