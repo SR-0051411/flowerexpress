@@ -45,7 +45,7 @@ const Header = ({
             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-pink-200">
               <img 
                 src="/lovable-uploads/8f5d8f7a-5451-4cb1-b6ed-30aa39799b28.png" 
-                alt="FlowerExpress Logo" 
+                alt="FlowerExpressCo Logo" 
                 className="w-full h-full object-cover"
               />
             </div>
