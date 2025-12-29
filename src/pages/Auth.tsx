@@ -244,7 +244,7 @@ const Auth = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-transparent">
-              FlowerExpress
+              FlowerExpressCo
             </h1>
             <p className="text-gray-600 mt-2">Your premium flower delivery service</p>
           </div>
@@ -270,7 +270,7 @@ const Auth = () => {
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-2xl text-gray-800">Welcome</CardTitle>
             <CardDescription className="text-gray-600">
-              Join FlowerExpress for the best flower delivery experience
+              Join FlowerExpressCo for the best flower delivery experience
             </CardDescription>
           </CardHeader>
           <CardContent>
