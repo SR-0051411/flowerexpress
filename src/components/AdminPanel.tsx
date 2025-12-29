@@ -7,6 +7,8 @@ import { toast } from "@/hooks/use-toast";
 import ProductForm from "./admin/ProductForm";
 import ProductCard from "./admin/ProductCard";
 import { Flower } from "./admin/types";
+import EmailPreview from "./EmailPreview";
+import { Mail } from "lucide-react";
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
   const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingFlowers, setEditingFlowers] = useState<{[key: string]: Flower}>({});
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   // Ensure only authenticated admins can access
   if (!isOwner || !user) {
@@ -86,6 +89,14 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
               Admin Dashboard - Product Management
             </DialogTitle>
             <div className="flex space-x-2">
+              <Button
+                onClick={() => setShowEmailPreview(true)}
+                variant="outline"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Email Preview
+              </Button>
               <ProductForm 
                 showAddForm={showAddForm}
                 onToggleForm={() => setShowAddForm(!showAddForm)}
@@ -121,6 +132,11 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
             ))}
           </div>
         </div>
+
+        <EmailPreview 
+          isOpen={showEmailPreview} 
+          onClose={() => setShowEmailPreview(false)} 
+        />
       </DialogContent>
     </Dialog>
   );
