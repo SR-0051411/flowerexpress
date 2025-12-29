@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useFlowers } from "@/contexts/FlowersContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import FlowerCard from "@/components/FlowerCard";
+import Footer from "@/components/Footer";
 
 const Favorites = () => {
   const navigate = useNavigate();
@@ -125,6 +126,8 @@ const Favorites = () => {
           </>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import Footer from "@/components/Footer";
 import { ArrowLeft, Package, Clock, CheckCircle, XCircle, Truck, CreditCard, RefreshCw, Wifi } from "lucide-react";
 
 const OrderHistory = () => {
@@ -290,6 +291,8 @@ const OrderHistory = () => {
           </div>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 };
