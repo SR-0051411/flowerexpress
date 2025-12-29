@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import Cart from "@/components/Cart";
@@ -17,8 +16,7 @@ import EnquiryForm from "@/components/EnquiryForm";
 import FeedbackButton from "@/components/FeedbackButton";
 import FeedbackForm from "@/components/FeedbackForm";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { PaymentProvider } from "@/contexts/PaymentContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { EnquiryProvider } from "@/contexts/EnquiryContext";
 import { FlowersProvider, useFlowers } from "@/contexts/FlowersContext";
 import { useCartManagement } from "@/hooks/useCartManagement";
@@ -129,17 +127,13 @@ const IndexContent = () => {
 
 const Index = () => {
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <PaymentProvider>
-          <EnquiryProvider>
-            <FlowersProvider>
-              <IndexContent />
-            </FlowersProvider>
-          </EnquiryProvider>
-        </PaymentProvider>
-      </LanguageProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <EnquiryProvider>
+        <FlowersProvider>
+          <IndexContent />
+        </FlowersProvider>
+      </EnquiryProvider>
+    </LanguageProvider>
   );
 };
 
