@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface Order {
   id: string;
@@ -11,6 +12,7 @@ interface Order {
   paymentMethod?: string;
   paymentId?: string;
   createdAt: Date;
+  userId?: string;
 }
 
 interface CustomerInfo {
@@ -37,41 +39,73 @@ interface CartItem {
 
 interface PaymentContextType {
   orders: Order[];
+  allOrders: Order[];
   isProcessingPayment: boolean;
   isLoadingOrders: boolean;
   createOrder: (items: CartItem[], customerInfo: CustomerInfo, total: number) => Promise<string>;
   processPayment: (orderId: string, paymentMethod: 'card' | 'upi' | 'netbanking') => Promise<boolean>;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
   getOrderById: (orderId: string) => Order | undefined;
   fetchOrders: () => Promise<void>;
+  fetchAllOrders: () => Promise<void>;
 }
 
 const PaymentContext = createContext<PaymentContextType | undefined>(undefined);
 
 export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
-  const { user } = useAuth();
+  const { user, isOwner } = useAuth();
 
-  // Fetch orders when user changes
-  useEffect(() => {
-    if (user) {
-      fetchOrders();
-    } else {
-      setOrders([]);
-    }
-  }, [user]);
+  // Map database order to Order interface
+  const mapDbOrderToOrder = useCallback((dbOrder: any, orderItems: any[] = []): Order => {
+    const items = orderItems
+      .filter(item => item.order_id === dbOrder.id)
+      .map(item => ({
+        id: item.flower_id,
+        name: item.flower_name,
+        price: Number(item.price),
+        quantity: item.quantity,
+        image: item.flower_image || '',
+        tiedLength: item.tied_length || undefined,
+        ballQuantity: item.ball_quantity || undefined
+      }));
 
-  const fetchOrders = async () => {
+    return {
+      id: dbOrder.id,
+      items,
+      total: Number(dbOrder.total),
+      customerInfo: {
+        name: dbOrder.customer_name,
+        phone: dbOrder.customer_phone,
+        address: dbOrder.delivery_address,
+        landmark: dbOrder.delivery_landmark || undefined,
+        city: dbOrder.delivery_city,
+        pincode: dbOrder.delivery_pincode,
+        latitude: dbOrder.delivery_latitude || undefined,
+        longitude: dbOrder.delivery_longitude || undefined,
+        deliveryNotes: dbOrder.delivery_notes || undefined
+      },
+      status: dbOrder.status as Order['status'],
+      paymentMethod: dbOrder.payment_method || undefined,
+      paymentId: dbOrder.payment_id || undefined,
+      createdAt: new Date(dbOrder.created_at),
+      userId: dbOrder.user_id
+    };
+  }, []);
+
+  // Fetch user's own orders
+  const fetchOrders = useCallback(async () => {
     if (!user) return;
     
     setIsLoadingOrders(true);
     try {
-      // Fetch orders with their items
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (ordersError) {
@@ -84,7 +118,6 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return;
       }
 
-      // Fetch order items for all orders
       const orderIds = ordersData.map(o => o.id);
       const { data: itemsData, error: itemsError } = await supabase
         .from('order_items')
@@ -95,41 +128,9 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         console.error('Error fetching order items:', itemsError);
       }
 
-      // Map database orders to Order interface
-      const mappedOrders: Order[] = ordersData.map(dbOrder => {
-        const orderItems = (itemsData || [])
-          .filter(item => item.order_id === dbOrder.id)
-          .map(item => ({
-            id: item.flower_id,
-            name: item.flower_name,
-            price: Number(item.price),
-            quantity: item.quantity,
-            image: item.flower_image || '',
-            tiedLength: item.tied_length || undefined,
-            ballQuantity: item.ball_quantity || undefined
-          }));
-
-        return {
-          id: dbOrder.id,
-          items: orderItems,
-          total: Number(dbOrder.total),
-          customerInfo: {
-            name: dbOrder.customer_name,
-            phone: dbOrder.customer_phone,
-            address: dbOrder.delivery_address,
-            landmark: dbOrder.delivery_landmark || undefined,
-            city: dbOrder.delivery_city,
-            pincode: dbOrder.delivery_pincode,
-            latitude: dbOrder.delivery_latitude || undefined,
-            longitude: dbOrder.delivery_longitude || undefined,
-            deliveryNotes: dbOrder.delivery_notes || undefined
-          },
-          status: dbOrder.status as Order['status'],
-          paymentMethod: dbOrder.payment_method || undefined,
-          paymentId: dbOrder.payment_id || undefined,
-          createdAt: new Date(dbOrder.created_at)
-        };
-      });
+      const mappedOrders = ordersData.map(dbOrder => 
+        mapDbOrderToOrder(dbOrder, itemsData || [])
+      );
 
       setOrders(mappedOrders);
     } catch (error) {
@@ -137,14 +138,114 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } finally {
       setIsLoadingOrders(false);
     }
-  };
+  }, [user, mapDbOrderToOrder]);
+
+  // Fetch all orders (for admins)
+  const fetchAllOrders = useCallback(async () => {
+    if (!user || !isOwner) return;
+    
+    setIsLoadingOrders(true);
+    try {
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (ordersError) {
+        console.error('Error fetching all orders:', ordersError);
+        return;
+      }
+
+      if (!ordersData || ordersData.length === 0) {
+        setAllOrders([]);
+        return;
+      }
+
+      const orderIds = ordersData.map(o => o.id);
+      const { data: itemsData, error: itemsError } = await supabase
+        .from('order_items')
+        .select('*')
+        .in('order_id', orderIds);
+
+      if (itemsError) {
+        console.error('Error fetching order items:', itemsError);
+      }
+
+      const mappedOrders = ordersData.map(dbOrder => 
+        mapDbOrderToOrder(dbOrder, itemsData || [])
+      );
+
+      setAllOrders(mappedOrders);
+    } catch (error) {
+      console.error('Error in fetchAllOrders:', error);
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  }, [user, isOwner, mapDbOrderToOrder]);
+
+  // Subscribe to real-time order updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('orders-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders'
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('Real-time order update:', payload);
+          
+          if (payload.eventType === 'UPDATE') {
+            const updatedOrder = payload.new;
+            
+            // Update user's orders
+            setOrders(prev => prev.map(order => 
+              order.id === updatedOrder.id 
+                ? { ...order, status: updatedOrder.status as Order['status'], paymentMethod: updatedOrder.payment_method, paymentId: updatedOrder.payment_id }
+                : order
+            ));
+            
+            // Update all orders (for admins)
+            setAllOrders(prev => prev.map(order => 
+              order.id === updatedOrder.id 
+                ? { ...order, status: updatedOrder.status as Order['status'], paymentMethod: updatedOrder.payment_method, paymentId: updatedOrder.payment_id }
+                : order
+            ));
+          } else if (payload.eventType === 'INSERT') {
+            // Refetch to get full order data with items
+            fetchOrders();
+            if (isOwner) {
+              fetchAllOrders();
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, isOwner, fetchOrders, fetchAllOrders]);
+
+  // Fetch orders when user changes
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    } else {
+      setOrders([]);
+      setAllOrders([]);
+    }
+  }, [user, fetchOrders]);
 
   const createOrder = async (items: CartItem[], customerInfo: CustomerInfo, total: number): Promise<string> => {
     if (!user) {
       throw new Error('User must be logged in to create an order');
     }
 
-    // Insert order into database
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -169,7 +270,6 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       throw new Error('Failed to create order');
     }
 
-    // Insert order items
     const orderItems = items.map(item => ({
       order_id: orderData.id,
       flower_id: item.id,
@@ -187,17 +287,16 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     if (itemsError) {
       console.error('Error creating order items:', itemsError);
-      // Order was created but items failed - we should still return the order ID
     }
 
-    // Add to local state immediately
     const newOrder: Order = {
       id: orderData.id,
       items,
       total,
       customerInfo,
       status: 'pending',
-      createdAt: new Date(orderData.created_at)
+      createdAt: new Date(orderData.created_at),
+      userId: user.id
     };
 
     setOrders(prev => [newOrder, ...prev]);
@@ -208,16 +307,12 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsProcessingPayment(true);
     
     try {
-      // Simulate payment processing (in production, integrate with Stripe/Razorpay)
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Demo mode: 90% success rate
       const paymentSuccessful = Math.random() > 0.1;
       
       if (paymentSuccessful) {
         const paymentId = `PAY_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
-        // Update order in database
         const { error } = await supabase
           .from('orders')
           .update({
@@ -232,24 +327,13 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           return false;
         }
 
-        // Update local state
-        setOrders(prev => prev.map(order => 
-          order.id === orderId 
-            ? { ...order, paymentId, paymentMethod, status: 'paid' as const }
-            : order
-        ));
-        
+        // Local state will be updated via real-time subscription
         return true;
       } else {
-        // Update order as cancelled in database
         await supabase
           .from('orders')
           .update({ status: 'cancelled' })
           .eq('id', orderId);
-
-        setOrders(prev => prev.map(order => 
-          order.id === orderId ? { ...order, status: 'cancelled' as const } : order
-        ));
         
         return false;
       }
@@ -261,8 +345,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const updateOrderStatus = async (orderId: string, status: Order['status']) => {
-    // Update in database
+  const updateOrderStatus = async (orderId: string, status: Order['status']): Promise<void> => {
     const { error } = await supabase
       .from('orders')
       .update({ status })
@@ -270,29 +353,29 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     if (error) {
       console.error('Error updating order status:', error);
-      return;
+      throw new Error('Failed to update order status');
     }
-
-    // Update local state
-    setOrders(prev => prev.map(order => 
-      order.id === orderId ? { ...order, status } : order
-    ));
+    
+    // Local state will be updated via real-time subscription
   };
 
   const getOrderById = (orderId: string): Order | undefined => {
-    return orders.find(order => order.id === orderId);
+    return orders.find(order => order.id === orderId) || 
+           allOrders.find(order => order.id === orderId);
   };
 
   return (
     <PaymentContext.Provider value={{
       orders,
+      allOrders,
       isProcessingPayment,
       isLoadingOrders,
       createOrder,
       processPayment,
       updateOrderStatus,
       getOrderById,
-      fetchOrders
+      fetchOrders,
+      fetchAllOrders
     }}>
       {children}
     </PaymentContext.Provider>
