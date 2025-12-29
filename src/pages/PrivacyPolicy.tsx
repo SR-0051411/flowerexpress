@@ -14,12 +14,12 @@ const PrivacyPolicy = () => {
         </Link>
 
         <article className="prose prose-slate dark:prose-invert max-w-none">
-          <h1 className="text-4xl font-bold mb-2">Privacy Policy for FlowerExpress</h1>
+          <h1 className="text-4xl font-bold mb-2">Privacy Policy for FlowerExpressCo</h1>
           <p className="text-muted-foreground mb-8"><strong>Effective Date:</strong> January 2025</p>
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
-            <p>Welcome to FlowerExpress ("we," "our," or "us"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our flower delivery application and services.</p>
+            <p>Welcome to FlowerExpressCo ("we," "our," or "us"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our flower delivery application and services.</p>
           </section>
 
           <section className="mb-8">
@@ -160,8 +160,8 @@ const PrivacyPolicy = () => {
             <h2 className="text-2xl font-semibold mb-4">14. Contact Us</h2>
             <p>If you have questions about this Privacy Policy or our data practices, please contact us:</p>
             <div className="bg-muted p-4 rounded-lg my-4">
-              <p className="font-semibold mb-2">FlowerExpress Support Team</p>
-              <p>Email: support@flowerexpress.com</p>
+              <p className="font-semibold mb-2">FlowerExpressCo Support Team</p>
+              <p>Email: support@flowerexpressco.com</p>
               <p>Phone: +91 [Insert Phone]</p>
               <p>Address: [Insert Address]</p>
             </div>
@@ -169,7 +169,7 @@ const PrivacyPolicy = () => {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">15. Consent</h2>
-            <p>By using FlowerExpress, you consent to the collection and use of your information as described in this Privacy Policy.</p>
+            <p>By using FlowerExpressCo, you consent to the collection and use of your information as described in this Privacy Policy.</p>
           </section>
 
           <hr className="my-8" />
