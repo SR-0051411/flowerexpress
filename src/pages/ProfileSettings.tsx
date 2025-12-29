@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, User, Bell, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import Footer from "@/components/Footer";
 
 interface ProfileData {
   full_name: string;
@@ -254,6 +255,8 @@ const ProfileSettings = () => {
           )}
         </Button>
       </div>
+
+      <Footer />
     </div>
   );
 };

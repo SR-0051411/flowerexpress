@@ -6,6 +6,7 @@ import ProductGrid from "@/components/ProductGrid";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Cart from "@/components/Cart";
 import CheckoutForm from "@/components/CheckoutForm";
+import Footer from "@/components/Footer";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { PaymentProvider } from "@/contexts/PaymentContext";
@@ -128,6 +129,8 @@ const FlowerGarlandsContent = () => {
         total={cartTotal}
         onOrderSuccess={handleOrderSuccess}
       />
+
+      <Footer />
     </div>
   );
 };
