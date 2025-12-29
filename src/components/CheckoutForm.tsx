@@ -131,15 +131,15 @@ const CheckoutForm = ({ isOpen, onClose, items, total, onOrderSuccess }: Checkou
   const handlePayment = async () => {
     try {
       const orderData = {
-        ...customerInfo,
-        location: {
-          latitude: customerInfo.latitude,
-          longitude: customerInfo.longitude,
-          address: customerInfo.address,
-          landmark: customerInfo.landmark,
-          city: customerInfo.city,
-          pincode: customerInfo.pincode
-        }
+        name: customerInfo.name,
+        phone: customerInfo.phone,
+        address: customerInfo.address,
+        landmark: customerInfo.landmark,
+        city: customerInfo.city,
+        pincode: customerInfo.pincode,
+        latitude: customerInfo.latitude,
+        longitude: customerInfo.longitude,
+        deliveryNotes: customerInfo.deliveryNotes
       };
       
       const orderId = await createOrder(items, orderData, total);

@@ -35,6 +35,113 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          ball_quantity: number | null
+          created_at: string
+          flower_id: string
+          flower_image: string | null
+          flower_name: string
+          id: string
+          order_id: string
+          price: number
+          quantity: number
+          tied_length: number | null
+        }
+        Insert: {
+          ball_quantity?: number | null
+          created_at?: string
+          flower_id: string
+          flower_image?: string | null
+          flower_name: string
+          id?: string
+          order_id: string
+          price: number
+          quantity?: number
+          tied_length?: number | null
+        }
+        Update: {
+          ball_quantity?: number | null
+          created_at?: string
+          flower_id?: string
+          flower_image?: string | null
+          flower_name?: string
+          id?: string
+          order_id?: string
+          price?: number
+          quantity?: number
+          tied_length?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          delivery_address: string
+          delivery_city: string
+          delivery_landmark: string | null
+          delivery_latitude: string | null
+          delivery_longitude: string | null
+          delivery_notes: string | null
+          delivery_pincode: string
+          id: string
+          payment_id: string | null
+          payment_method: string | null
+          status: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name: string
+          customer_phone: string
+          delivery_address: string
+          delivery_city: string
+          delivery_landmark?: string | null
+          delivery_latitude?: string | null
+          delivery_longitude?: string | null
+          delivery_notes?: string | null
+          delivery_pincode: string
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          status?: string
+          total: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          delivery_address?: string
+          delivery_city?: string
+          delivery_landmark?: string | null
+          delivery_latitude?: string | null
+          delivery_longitude?: string | null
+          delivery_notes?: string | null
+          delivery_pincode?: string
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          status?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       otp_rate_limits: {
         Row: {
           created_at: string | null
