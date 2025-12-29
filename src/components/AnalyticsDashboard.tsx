@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { usePayment } from "@/contexts/PaymentContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
@@ -23,9 +24,14 @@ import {
   IndianRupee, 
   ShoppingBag,
   Users,
-  Clock
+  Clock,
+  Download,
+  FileText
 } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay, isWithinInterval } from "date-fns";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "@/hooks/use-toast";
 
 interface AnalyticsDashboardProps {
   isOpen: boolean;
@@ -134,6 +140,215 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
 
   const COLORS = ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#22c55e', '#ef4444'];
 
+  // Export to CSV
+  const exportToCSV = () => {
+    try {
+      const reportDate = format(new Date(), 'yyyy-MM-dd');
+      
+      // Summary section
+      let csvContent = "Sri Mahalakshmi Flowers - Analytics Report\n";
+      csvContent += `Generated on: ${format(new Date(), 'dd MMM yyyy, hh:mm a')}\n\n`;
+      
+      // KPI Summary
+      csvContent += "=== Summary ===\n";
+      csvContent += `Total Revenue,₹${analytics.totalRevenue.toLocaleString()}\n`;
+      csvContent += `Total Orders,${analytics.totalOrders}\n`;
+      csvContent += `Average Order Value,₹${Math.round(analytics.avgOrderValue)}\n`;
+      csvContent += `Pending Orders,${analytics.pendingOrders}\n`;
+      csvContent += `Delivered Orders,${analytics.deliveredOrders}\n\n`;
+      
+      // Daily Sales
+      csvContent += "=== Daily Sales (Last 7 Days) ===\n";
+      csvContent += "Date,Revenue,Orders\n";
+      analytics.dailySales.forEach(day => {
+        csvContent += `${day.date},₹${day.revenue},${day.orders}\n`;
+      });
+      csvContent += "\n";
+      
+      // Top Products
+      csvContent += "=== Top Selling Products ===\n";
+      csvContent += "Rank,Product Name,Quantity Sold,Revenue\n";
+      analytics.popularProducts.forEach((product, index) => {
+        csvContent += `${index + 1},${product.name},${product.count},₹${product.revenue.toLocaleString()}\n`;
+      });
+      csvContent += "\n";
+      
+      // Status Distribution
+      csvContent += "=== Order Status Distribution ===\n";
+      csvContent += "Status,Count\n";
+      analytics.statusDistribution.forEach(status => {
+        csvContent += `${status.name},${status.value}\n`;
+      });
+      csvContent += "\n";
+      
+      // All Orders
+      csvContent += "=== All Orders ===\n";
+      csvContent += "Order ID,Customer Name,Phone,City,Total,Status,Date\n";
+      allOrders.forEach(order => {
+        csvContent += `${order.id.slice(0, 8)},${order.customerInfo.name},${order.customerInfo.phone},${order.customerInfo.city},₹${order.total},${order.status},${format(new Date(order.createdAt), 'dd MMM yyyy')}\n`;
+      });
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `analytics-report-${reportDate}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      
+      toast({
+        title: "CSV Exported",
+        description: "Analytics report downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export CSV file",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Export to PDF
+  const exportToPDF = () => {
+    try {
+      const doc = new jsPDF();
+      const reportDate = format(new Date(), 'dd MMM yyyy, hh:mm a');
+      
+      // Title
+      doc.setFontSize(20);
+      doc.setTextColor(236, 72, 153); // Pink color
+      doc.text("Sri Mahalakshmi Flowers", 105, 20, { align: "center" });
+      
+      doc.setFontSize(14);
+      doc.setTextColor(100);
+      doc.text("Sales Analytics Report", 105, 28, { align: "center" });
+      
+      doc.setFontSize(10);
+      doc.text(`Generated: ${reportDate}`, 105, 35, { align: "center" });
+      
+      // Summary Box
+      doc.setFillColor(249, 250, 251);
+      doc.rect(14, 42, 182, 30, 'F');
+      
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text("Summary", 20, 50);
+      
+      doc.setFontSize(10);
+      doc.text(`Total Revenue: ₹${analytics.totalRevenue.toLocaleString()}`, 20, 58);
+      doc.text(`Total Orders: ${analytics.totalOrders}`, 80, 58);
+      doc.text(`Avg Order Value: ₹${Math.round(analytics.avgOrderValue)}`, 140, 58);
+      doc.text(`Pending: ${analytics.pendingOrders}`, 20, 66);
+      doc.text(`Delivered: ${analytics.deliveredOrders}`, 80, 66);
+      
+      // Daily Sales Table
+      doc.setFontSize(12);
+      doc.text("Daily Sales (Last 7 Days)", 14, 82);
+      
+      autoTable(doc, {
+        startY: 85,
+        head: [['Date', 'Revenue', 'Orders']],
+        body: analytics.dailySales.map(day => [
+          day.date,
+          `₹${day.revenue.toLocaleString()}`,
+          day.orders.toString()
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [236, 72, 153] },
+        margin: { left: 14, right: 14 },
+      });
+      
+      // Top Products Table
+      const afterDailySales = (doc as any).lastAutoTable.finalY + 10;
+      doc.text("Top Selling Products", 14, afterDailySales);
+      
+      autoTable(doc, {
+        startY: afterDailySales + 3,
+        head: [['Rank', 'Product', 'Qty Sold', 'Revenue']],
+        body: analytics.popularProducts.map((product, index) => [
+          (index + 1).toString(),
+          product.name,
+          product.count.toString(),
+          `₹${product.revenue.toLocaleString()}`
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [139, 92, 246] },
+        margin: { left: 14, right: 14 },
+      });
+      
+      // Status Distribution
+      const afterProducts = (doc as any).lastAutoTable.finalY + 10;
+      doc.text("Order Status Distribution", 14, afterProducts);
+      
+      autoTable(doc, {
+        startY: afterProducts + 3,
+        head: [['Status', 'Count']],
+        body: analytics.statusDistribution.map(status => [
+          status.name.charAt(0).toUpperCase() + status.name.slice(1),
+          status.value.toString()
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [16, 185, 129] },
+        margin: { left: 14, right: 14 },
+      });
+      
+      // New page for orders list if needed
+      if (allOrders.length > 0) {
+        doc.addPage();
+        doc.setFontSize(14);
+        doc.text("All Orders", 14, 20);
+        
+        autoTable(doc, {
+          startY: 25,
+          head: [['Order ID', 'Customer', 'City', 'Total', 'Status', 'Date']],
+          body: allOrders.slice(0, 50).map(order => [
+            order.id.slice(0, 8),
+            order.customerInfo.name,
+            order.customerInfo.city,
+            `₹${order.total}`,
+            order.status,
+            format(new Date(order.createdAt), 'dd MMM yy')
+          ]),
+          theme: 'striped',
+          headStyles: { fillColor: [59, 130, 246] },
+          margin: { left: 14, right: 14 },
+          styles: { fontSize: 8 },
+        });
+      }
+      
+      // Footer
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(
+          `Page ${i} of ${pageCount} - Sri Mahalakshmi Flowers`,
+          105,
+          doc.internal.pageSize.height - 10,
+          { align: "center" }
+        );
+      }
+      
+      // Save
+      doc.save(`analytics-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+      
+      toast({
+        title: "PDF Exported",
+        description: "Analytics report downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export PDF file",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (!isOwner || !user) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -153,10 +368,34 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-primary" />
-            Sales Analytics Dashboard
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-primary" />
+              Sales Analytics Dashboard
+            </DialogTitle>
+            <div className="flex gap-2">
+              <Button
+                onClick={exportToCSV}
+                variant="outline"
+                size="sm"
+                className="text-green-600 border-green-600 hover:bg-green-50"
+                disabled={allOrders.length === 0}
+              >
+                <Download className="w-4 h-4 mr-1" />
+                CSV
+              </Button>
+              <Button
+                onClick={exportToPDF}
+                variant="outline"
+                size="sm"
+                className="text-red-600 border-red-600 hover:bg-red-50"
+                disabled={allOrders.length === 0}
+              >
+                <FileText className="w-4 h-4 mr-1" />
+                PDF
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
 
         {isLoadingOrders ? (
