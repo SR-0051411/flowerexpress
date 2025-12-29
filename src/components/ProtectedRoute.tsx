@@ -1,7 +1,6 @@
-
 import { useAuth } from "@/contexts/AuthContext";
-import Auth from "@/pages/Auth";
 import { Loader2 } from "lucide-react";
+import { Navigate } from "react-router-dom";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -23,7 +22,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Allow access if user is logged in OR if they're logged in as owner
   if (!user && !isOwner) {
-    return <Auth />;
+    return <Navigate to="/auth" replace />;
   }
 
   return <>{children}</>;
