@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Package, Clock, CheckCircle, XCircle, Truck, CreditCard, RefreshCw } from "lucide-react";
+import { ArrowLeft, Package, Clock, CheckCircle, XCircle, Truck, CreditCard, RefreshCw, Wifi } from "lucide-react";
 
 const OrderHistory = () => {
   const { orders, isLoadingOrders, fetchOrders } = usePayment();
@@ -17,7 +17,7 @@ const OrderHistory = () => {
     if (user) {
       fetchOrders();
     }
-  }, [user]);
+  }, [user, fetchOrders]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -128,7 +128,13 @@ const OrderHistory = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
+              <p className="text-sm text-gray-500 flex items-center gap-1">
+                <Wifi className="w-3 h-3 text-green-500" />
+                Real-time updates enabled
+              </p>
+            </div>
           </div>
           <Button
             variant="outline"
