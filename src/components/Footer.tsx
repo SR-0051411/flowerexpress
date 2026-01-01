@@ -2,6 +2,17 @@ import { Heart, Mail, Phone, MapPin, Facebook, Instagram, Twitter } from "lucide
 import { Link } from "react-router-dom";
 
 const Footer = () => {
+  // =========================================
+  // 🔧 OWNER CONTACT DETAILS - UPDATE HERE
+  // =========================================
+  const OWNER_EMAIL = "owner@example.com";           // Replace with your email
+  const OWNER_PHONE = "+91XXXXXXXXXX";               // Replace with your phone number
+  const OWNER_ADDRESS = "Your Shop Address Here";    // Replace with your address
+  const FACEBOOK_URL = "https://facebook.com";       // Replace with your Facebook page URL
+  const INSTAGRAM_URL = "https://instagram.com";     // Replace with your Instagram page URL
+  const TWITTER_URL = "https://twitter.com";         // Replace with your Twitter/X page URL
+  // =========================================
+
   return (
     <footer className="bg-gradient-to-br from-pink-900 via-rose-800 to-pink-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -23,7 +34,7 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <a 
-                href="https://facebook.com" 
+                href={FACEBOOK_URL} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-pink-700 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors"
@@ -32,7 +43,7 @@ const Footer = () => {
                 <Facebook className="w-5 h-5" />
               </a>
               <a 
-                href="https://instagram.com" 
+                href={INSTAGRAM_URL} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-pink-700 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors"
@@ -41,7 +52,7 @@ const Footer = () => {
                 <Instagram className="w-5 h-5" />
               </a>
               <a 
-                href="https://twitter.com" 
+                href={TWITTER_URL} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-pink-700 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors"
@@ -112,21 +123,20 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-pink-300" />
-                <a href="mailto:support@flowerexpressco.com" className="text-pink-200 hover:text-white transition-colors">
-                  support@flowerexpressco.com
+                <a href={`mailto:${OWNER_EMAIL}`} className="text-pink-200 hover:text-white transition-colors">
+                  {OWNER_EMAIL}
                 </a>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-pink-300" />
-                <a href="tel:+1234567890" className="text-pink-200 hover:text-white transition-colors">
-                  +1 (234) 567-890
+                <a href={`tel:${OWNER_PHONE}`} className="text-pink-200 hover:text-white transition-colors">
+                  {OWNER_PHONE}
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-pink-300 mt-0.5" />
                 <span className="text-pink-200">
-                  123 Flower Street,<br />
-                  Garden City, GC 12345
+                  {OWNER_ADDRESS}
                 </span>
               </li>
             </ul>
