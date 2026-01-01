@@ -11,7 +11,7 @@ import CategoriesSection from "@/components/CategoriesSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import EnquiryButton from "@/components/EnquiryButton";
 import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
+
 import EnquiryForm from "@/components/EnquiryForm";
 import FeedbackButton from "@/components/FeedbackButton";
 import FeedbackForm from "@/components/FeedbackForm";
@@ -73,7 +73,7 @@ const IndexContent = () => {
 
       <Footer />
 
-      <WhatsAppButton />
+      
       <EnquiryButton />
       <EnquiryForm />
 
