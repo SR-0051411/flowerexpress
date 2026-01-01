@@ -183,12 +183,18 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [user, isOwner, mapDbOrderToOrder]);
 
-  // Subscribe to real-time order updates
+  // Subscribe to real-time order updates - use user.id in channel name to ensure uniqueness
   useEffect(() => {
     if (!user) return;
 
+    const channelName = `orders-realtime-${user.id}`;
+    
+    // Remove any existing channel with the same name first
+    const existingChannel = supabase.channel(channelName);
+    supabase.removeChannel(existingChannel);
+
     const channel = supabase
-      .channel('orders-realtime')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -216,7 +222,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 : order
             ));
           } else if (payload.eventType === 'INSERT') {
-            // Refetch to get full order data with items
+            // Refetch to get full order data with items - triggered inside callback, no need for deps
             fetchOrders();
             if (isOwner) {
               fetchAllOrders();
@@ -229,7 +235,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, isOwner, fetchOrders, fetchAllOrders]);
+  }, [user?.id]); // Only depend on user.id to prevent re-subscriptions
 
   // Fetch orders when user changes
   useEffect(() => {
