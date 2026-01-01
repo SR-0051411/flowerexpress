@@ -7,9 +7,8 @@ import { toast } from "@/hooks/use-toast";
 import ProductForm from "./admin/ProductForm";
 import ProductCard from "./admin/ProductCard";
 import { Flower } from "./admin/types";
-import EmailPreview from "./EmailPreview";
 import AnalyticsDashboard from "./AnalyticsDashboard";
-import { Mail, BarChart3 } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -21,7 +20,6 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
   const { flowers, updateFlower, addFlower, deleteFlower } = useFlowers();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingFlowers, setEditingFlowers] = useState<{[key: string]: Flower}>({});
-  const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Ensure only authenticated admins can access
@@ -99,14 +97,6 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Analytics
               </Button>
-              <Button
-                onClick={() => setShowEmailPreview(true)}
-                variant="outline"
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                Email Preview
-              </Button>
               <ProductForm 
                 showAddForm={showAddForm}
                 onToggleForm={() => setShowAddForm(!showAddForm)}
@@ -142,11 +132,6 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
             ))}
           </div>
         </div>
-
-        <EmailPreview 
-          isOpen={showEmailPreview} 
-          onClose={() => setShowEmailPreview(false)} 
-        />
 
         <AnalyticsDashboard
           isOpen={showAnalytics}

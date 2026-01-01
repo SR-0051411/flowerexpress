@@ -19,6 +19,13 @@ const FeedbackForm = ({ isOpen, onClose }: FeedbackFormProps) => {
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // =========================================
+  // 🔧 OWNER CONTACT DETAILS - UPDATE HERE
+  // =========================================
+  const OWNER_WHATSAPP = "+91XXXXXXXXXX"; // Replace with your WhatsApp number (with country code)
+  const OWNER_EMAIL = "owner@example.com"; // Replace with your email address
+  // =========================================
+
   const feedbackCategories = [
     { id: "delivery", label: "Delivery Process", emoji: "🚚" },
     { id: "packaging", label: "Packaging Quality", emoji: "📦" },
@@ -41,14 +48,27 @@ const FeedbackForm = ({ isOpen, onClose }: FeedbackFormProps) => {
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log("Feedback submitted:", { rating, category, comment, timestamp: new Date() });
+    // Create WhatsApp feedback message
+    const selectedCategory = feedbackCategories.find(cat => cat.id === category);
+    const stars = "⭐".repeat(rating);
+    const feedbackMessage = `📝 *Customer Feedback*
+
+${stars} (${rating}/5 Rating)
+
+*Category:* ${selectedCategory?.emoji} ${selectedCategory?.label}
+
+*Feedback:*
+${comment}
+
+---
+Sent via FlowerExpressCo App`;
+
+    const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP.replace(/\D/g, '')}?text=${encodeURIComponent(feedbackMessage)}`;
+    window.open(whatsappUrl, '_blank');
     
     toast({
       title: "Thank you for your feedback! 🙏",
-      description: "Your feedback helps us deliver better fresh flowers",
+      description: "Your feedback has been sent via WhatsApp",
       variant: "default"
     });
 

@@ -25,6 +25,12 @@ const EnquiryForm = () => {
     { id: "custom", label: "தனிப்பயன் ஆர்டர் (Custom Order)", icon: MessageCircle }
   ];
 
+  // =========================================
+  // 🔧 OWNER CONTACT DETAILS - UPDATE HERE
+  // =========================================
+  const OWNER_WHATSAPP = "+91XXXXXXXXXX"; // Replace with your WhatsApp number (with country code)
+  // =========================================
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -45,7 +51,7 @@ ${selectedProduct ? `*தயாரிப்பு ID / Product ID:* ${selectedPr
 
 நன்றி! / Thank you!`;
 
-    const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     
     toast({

@@ -1,12 +1,17 @@
 import { MessageCircle } from "lucide-react";
 
 const WhatsAppButton = () => {
-  const phoneNumber = "1234567890"; // Replace with actual WhatsApp number
+  // =========================================
+  // 🔧 OWNER CONTACT DETAILS - UPDATE HERE
+  // =========================================
+  const OWNER_WHATSAPP = "+91XXXXXXXXXX"; // Replace with your WhatsApp number (with country code)
+  // =========================================
+
   const message = "Hello! I have a question about FlowerExpressCo.";
   
   const handleClick = () => {
     const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
+    window.open(`https://wa.me/${OWNER_WHATSAPP.replace(/\D/g, '')}?text=${encodedMessage}`, "_blank");
   };
 
   return (
